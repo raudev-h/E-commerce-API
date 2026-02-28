@@ -27,3 +27,11 @@ async def create_category(data:CategoryCreate, db:AsyncSession = Depends(get_db)
         return await category_service.create_category(db, data)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+
+@router.patch("/{id}", response_model=CategoryResponse)
+async def update_user(id:UUID, data:CategoryUpdate, db:AsyncSession = Depends(get_db)):
+    try:
+        return await category_service.update_category(id, data, db)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))

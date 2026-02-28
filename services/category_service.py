@@ -32,3 +32,16 @@ async def create_category(db:AsyncSession, data:CategoryCreate) -> Category:
     db.add(category)
     await db.flush()
     return category
+
+async def update_category(id:UUID, data:CategoryUpdate, db:AsyncSession) -> Category:
+    category = await get_category_by_id(db, id)
+    updated_data = data.model_dump(exclude_unset=True)
+
+    if not updated_data:
+        return category
+    
+    for field, value in updated_data.items():
+        setattr(category, field, value)
+
+    await db.flush()
+    return category
