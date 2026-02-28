@@ -9,6 +9,6 @@ class Category(Base):
 
     id:Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
 
-    name:Mapped[str] = mapped_column(String(120))
+    name:Mapped[str] = mapped_column(String(120), unique=True)
 
     description:Mapped[str | None] = mapped_column(String(300), nullable=True)
