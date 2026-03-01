@@ -6,11 +6,11 @@ from uuid import UUID
 
 
 async def get_all_categories(db:AsyncSession) -> list[Category]:
-    result = await db.execute(select(Category))
+    result = await db.execute(select(Category).where(Category.is_active == True))
     return list(result.scalars().all())
 
 async def get_category_by_id(db:AsyncSession, id:UUID) -> Category:
-    result = await db.execute(select(Category).where(Category.id == id))
+    result = await db.execute(select(Category).where(Category.id == id, Category.is_active == True))
     category = result.scalar_one_or_none()
     
     if not category:
