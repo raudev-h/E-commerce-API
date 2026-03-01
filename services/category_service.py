@@ -45,3 +45,9 @@ async def update_category(id:UUID, data:CategoryUpdate, db:AsyncSession) -> Cate
 
     await db.flush()
     return category
+
+async def delete_category(id:UUID, db:AsyncSession):
+    category = await get_category_by_id(db, id)
+    category.is_active = False
+
+    await db.flush()

@@ -34,4 +34,11 @@ async def update_user(id:UUID, data:CategoryUpdate, db:AsyncSession = Depends(ge
     try:
         return await category_service.update_category(id, data, db)
     except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))    
+
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_category(id:UUID, db:AsyncSession = Depends(get_db)):
+    try:
+        await category_service.delete_category(id, db)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
