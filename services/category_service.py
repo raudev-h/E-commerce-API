@@ -19,7 +19,7 @@ async def get_category_by_id(db:AsyncSession, id:UUID) -> Category:
     return category
 
 async def create_category(db:AsyncSession, data:CategoryCreate) -> Category:
-    result = await db.execute(select(Category).where(Category.name == data.name))
+    result = await db.execute(select(Category).where(Category.name == data.name, Category.is_active == True))
 
     if result.scalar_one_or_none():
         raise ValueError(f"Category: {data.name} already exists")
