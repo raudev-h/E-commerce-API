@@ -17,6 +17,8 @@ class Product(Base):
 
     name:Mapped[str] = mapped_column(String(100))
 
+    description:Mapped[str | None] = mapped_column(String(500), nullable=True)
+
     price:Mapped[float] = mapped_column(Float)
 
     stock:Mapped[int] = mapped_column(Integer)
