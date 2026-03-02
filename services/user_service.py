@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from models import User
+from models import User, Cart
 from schemas import UserCreate, UserUpdateProfile
 from uuid import UUID
 
@@ -29,6 +29,11 @@ async def create_user(db:AsyncSession, data:UserCreate) -> User:
     )
     db.add(user)
     await db.flush()
+
+    cart = Cart(user_id = user.id)
+    db.add(cart)
+    await db.flush()
+    
     return user
 
 async def update_user_profle(db:AsyncSession, id:UUID, data:UserUpdateProfile) -> User:
