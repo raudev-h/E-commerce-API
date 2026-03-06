@@ -59,3 +59,8 @@ async def update_product(id:UUID, data:ProductUpdate, db:AsyncSession) -> Produc
     await db.flush()
     await db.refresh(product)
     return product
+
+async def delete_product(id:UUID, db:AsyncSession) -> None: # TODO más adelante verificar que el producto no tiene pendientes
+    product = await get_product_by_id(id,db)
+    
+    product.is_active = False

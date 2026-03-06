@@ -40,3 +40,10 @@ async def update_product(id:UUID, data:ProductUpdate, db:AsyncSession = Depends(
         return await product_service.update_product(id, data, db) 
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_product(id:UUID, db:AsyncSession = Depends(get_db)):
+    try:
+        await product_service.delete_product(id, db)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
