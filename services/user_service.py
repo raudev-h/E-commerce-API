@@ -47,4 +47,5 @@ async def update_user_profle(db:AsyncSession, id:UUID, data:UserUpdateProfile) -
         setattr(user, field, value)
 
     await db.flush()
+    await db.refresh(user)
     return user
