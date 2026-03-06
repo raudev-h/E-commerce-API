@@ -46,3 +46,16 @@ async def create_product(db: AsyncSession, data: ProductCreate) -> Product:
     await db.flush()
 
     return product
+
+async def update_product(id:UUID, data:ProductUpdate, db:AsyncSession) -> Product:
+    product = await get_product_by_id(id,db)
+    updated_data = data.model_dump(exclude_unset=True)
+    if not updated_data:
+        return product
+
+    for field, value in updated_data.items():
+        setattr(product,field,value)
+    
+    await db.flush()
+    await db.refresh(product)
+    return product
