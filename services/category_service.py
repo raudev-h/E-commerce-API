@@ -44,6 +44,7 @@ async def update_category(id:UUID, data:CategoryUpdate, db:AsyncSession) -> Cate
         setattr(category, field, value)
 
     await db.flush()
+    await db.refresh(category)
     return category
 
 async def delete_category(id:UUID, db:AsyncSession):
