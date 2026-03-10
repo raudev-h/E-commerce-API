@@ -1,7 +1,8 @@
-from sqlalchemy import ForeignKey, Integer, CheckConstraint
+from sqlalchemy import ForeignKey, Integer, CheckConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column
 from core.database import Base
 from uuid import UUID, uuid4
+from datetime import datetime
 
 
 class CartItem(Base):
@@ -19,3 +20,5 @@ class CartItem(Base):
     product_id:Mapped[UUID] = mapped_column(ForeignKey("products.id"))
 
     quantity:Mapped[int] = mapped_column(Integer)
+
+    updated_at:Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now())
