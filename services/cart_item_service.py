@@ -2,6 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from models import CartItem, User, Product, Cart
 from schemas import CartItemAdd, CartItemUpdate
+from uuid import UUID
 
 async def add_item(item:CartItemAdd, db:AsyncSession) -> CartItem:     
     user = await db.execute(select(User).where(User.id == item.user_id))
@@ -43,6 +44,17 @@ async def add_item(item:CartItemAdd, db:AsyncSession) -> CartItem:
     await db.flush()
     await db.refresh(cart_item)
     return cart_item
+
+async def delete_item(id:UUID, db:AsyncSession) -> None:
+    cart_item = await db.execute(select(CartItem).where(CartItem.id == id))
+
+    cart_item = cart_item.scalar_one_or_none()
+
+    if not cart_item:
+        raise ValueError("cart item not found")
+
+    await db.delete(cart_item)
+    await db.flush()
 
 def _unavailable_stock(product_stock:int, item_quantity:int, message:str):
     if product_stock < item_quantity:

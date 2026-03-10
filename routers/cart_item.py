@@ -13,3 +13,10 @@ async def add_item(data:CartItemAdd, db:AsyncSession = Depends(get_db)):
         return await cart_item_service.add_item(data, db)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_item(id:UUID, db:AsyncSession = Depends(get_db)):
+    try:
+        await cart_item_service.delete_item(id,db)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
