@@ -1,8 +1,20 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from models import CartItem, User, Product, Cart
-from schemas import CartItemAdd, CartItemUpdate
+from schemas import CartItemAdd
 from uuid import UUID
+
+
+async def get_cart_items(id:UUID, db:AsyncSession) -> list[CartItem]:
+    cart = await db.execute(select(Cart).where(Cart.user_id == id))
+    cart = cart.scalar_one_or_none()
+
+    if not cart:
+        raise ValueError("user not found")
+    
+    items = await db.execute(select(CartItem).where(CartItem.cart_id == cart.id))
+
+    return list(items.scalars().all())
 
 async def add_item(item:CartItemAdd, db:AsyncSession) -> CartItem:     
     user = await db.execute(select(User).where(User.id == item.user_id))
