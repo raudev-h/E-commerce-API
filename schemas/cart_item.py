@@ -7,9 +7,6 @@ class CartItemAdd(BaseModel):
     product_id:UUID
     quantity:int = Field(gt=0)
 
-class CartItemUpdate(BaseModel):
-    quantity:int = Field(gt=0)
-    
 class CartItemResponse(BaseModel):
     id:UUID
     cart_id:UUID
