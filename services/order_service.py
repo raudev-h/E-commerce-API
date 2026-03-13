@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from models import Order, OrderItem, Cart, CartItem, User, Product
 from models.order import Status
 from schemas import OrderCreate
+from core import BadRequestException, NotFoundException, ConflictException
 from uuid import UUID
 
 
@@ -10,7 +11,7 @@ async def get_orders(user_id:UUID, db:AsyncSession):
     user = await db.execute(select(User).where(User.id == user_id))
 
     if not user.scalar_one_or_none():
-        raise ValueError("user not found")
+        raise NotFoundException("user not found")
     
     orders = await db.execute(select(Order).where(Order.user_id == user_id))
 
@@ -22,14 +23,14 @@ async def get_order(order_id:UUID, user_id:UUID, db:AsyncSession):
     user = await db.execute(select(User).where(User.id == user_id))
 
     if not user.scalar_one_or_none():
-        raise ValueError("user not found")
+        raise NotFoundException("user not found")
     
     order = await db.execute(select(Order).where(Order.id == order_id, Order.user_id == user_id))
 
     order = order.scalar_one_or_none()
 
     if not order:
-        raise ValueError("order not found")
+        raise NotFoundException("order not found")
 
     return order
 
@@ -37,7 +38,7 @@ async def create_order(data:OrderCreate, db:AsyncSession) -> Order:
     user = await db.execute(select(User).where(User.id == data.user_id, User.is_active))
 
     if not user.scalar_one_or_none():
-        raise ValueError("user not found")
+        raise NotFoundException("user not found")
     
     items = await _get_all_items(data.user_id, db)
 
@@ -88,7 +89,7 @@ async def cancel_order(order_id:UUID, db:AsyncSession):
     order = await _get_order_by_id(order_id, db)
     
     if not order.status in cancellable_statuses:
-        raise ValueError("order cannot be cancelled")
+        raise BadRequestException("order cannot be cancelled")
 
     order.status = Status.CANCELLED
 
@@ -103,14 +104,14 @@ async def _get_all_items(id:UUID, db:AsyncSession):
     cart = cart.scalar_one_or_none()
 
     if not cart:
-        raise ValueError("user not found")
+        raise NotFoundException("user not found")
     
     cart_items = await db.execute(select(CartItem).where(CartItem.cart_id == cart.id))
 
     cart_items = cart_items.scalars().all()
 
     if not cart_items:
-        raise ValueError("empty cart")
+        raise ConflictException("empty cart")
 
     return list(cart_items)
 
@@ -120,6 +121,6 @@ async def _get_order_by_id(order_id:UUID, db:AsyncSession) -> Order:
     order = order.scalar_one_or_none()
 
     if not order:
-        raise ValueError("order not found")
+        raise NotFoundException("order not found")
     
     return order
