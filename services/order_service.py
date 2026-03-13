@@ -82,6 +82,21 @@ async def create_order(data:OrderCreate, db:AsyncSession) -> Order:
 
     return order
 
+async def cancel_order(order_id:UUID, db:AsyncSession):
+    cancellable_statuses = [Status.PENDING, Status.CONFIRMED]
+
+    order = await _get_order_by_id(order_id, db)
+    
+    if not order.status in cancellable_statuses:
+        raise ValueError("order cannot be cancelled")
+
+    order.status = Status.CANCELLED
+
+    await db.flush()
+    await db.refresh(order)
+
+    return order
+
 async def _get_all_items(id:UUID, db:AsyncSession):
     cart = await db.execute(select(Cart).where(Cart.user_id == id))
 
@@ -98,3 +113,13 @@ async def _get_all_items(id:UUID, db:AsyncSession):
         raise ValueError("empty cart")
 
     return list(cart_items)
+
+async def _get_order_by_id(order_id:UUID, db:AsyncSession) -> Order:
+    order = await db.execute(select(Order).where(Order.id == order_id))
+
+    order = order.scalar_one_or_none()
+
+    if not order:
+        raise ValueError("order not found")
+    
+    return order
