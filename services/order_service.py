@@ -5,6 +5,34 @@ from models.order import Status
 from schemas import OrderCreate
 from uuid import UUID
 
+
+async def get_orders(user_id:UUID, db:AsyncSession):
+    user = await db.execute(select(User).where(User.id == user_id))
+
+    if not user.scalar_one_or_none():
+        raise ValueError("user not found")
+    
+    orders = await db.execute(select(Order).where(Order.user_id == user_id))
+
+    orders = orders.scalars().all()
+
+    return list(orders)
+
+async def get_order(order_id:UUID, user_id:UUID, db:AsyncSession):
+    user = await db.execute(select(User).where(User.id == user_id))
+
+    if not user.scalar_one_or_none():
+        raise ValueError("user not found")
+    
+    order = await db.execute(select(Order).where(Order.id == order_id, Order.user_id == user_id))
+
+    order = order.scalar_one_or_none()
+
+    if not order:
+        raise ValueError("order not found")
+
+    return order
+
 async def create_order(data:OrderCreate, db:AsyncSession) -> Order:
     user = await db.execute(select(User).where(User.id == data.user_id, User.is_active))
 
