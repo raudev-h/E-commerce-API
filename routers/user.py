@@ -26,7 +26,7 @@ async def create_user(data: UserCreate, db: AsyncSession = Depends(get_db)):
     try:
         return await user_service.create_user(db, data)
     except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail={str(e)})
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
 @router.patch("/{id}", response_model=UserResponse)

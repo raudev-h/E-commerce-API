@@ -21,7 +21,7 @@ async def create_user(db:AsyncSession, data:UserCreate) -> User:
     result = await db.execute(select(User).where(User.email == data.email))
     
     if result.scalar_one_or_none():
-        raise ValueError(f"{data.email} already exists")
+        raise ValueError("Email already registered")
     
     user = User(
         first_name = data.first_name,
