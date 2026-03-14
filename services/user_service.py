@@ -51,3 +51,15 @@ async def update_user_profle(db:AsyncSession, id:UUID, data:UserUpdateProfile) -
     await db.flush()
     await db.refresh(user)
     return user
+
+async def _autenticate_user(email:str, password:str, db:AsyncSession):
+    user = await db.execute(select(User).where(User.email == email))
+
+    user = user.scalar_one_or_none()
+
+    if not user:
+        security.verify_password(password,security.DUMMY_HASH)
+        return False
+    if not security.verify_password(password, user.password):
+        return False
+    return user
