@@ -1,5 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from core import security
+
 from models import User, Cart
 from schemas import UserCreate, UserUpdateProfile
 from uuid import UUID
@@ -25,7 +27,7 @@ async def create_user(db:AsyncSession, data:UserCreate) -> User:
         first_name = data.first_name,
         last_name = data.last_name,
         email = data.email,
-        password = data.password
+        password = security.get_password_hash(data.password)
     )
     db.add(user)
     await db.flush()
