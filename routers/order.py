@@ -1,18 +1,21 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
+from models import User
 from core.database import get_db
+from core import security
 from schemas import OrderCreate, OrderResponse
 from services import order_service
 from core import NotFoundException, BadRequestException, ConflictException
 from uuid import UUID
+from typing import Annotated
 
 
 router = APIRouter(prefix="/order", tags=["orders"])
 
 @router.get("/", response_model=list[OrderResponse])
-async def get_orders(user_id:UUID, db:AsyncSession = Depends(get_db)):
+async def get_orders(current_user:Annotated[User, Depends(security.get_current_user)], db:AsyncSession = Depends(get_db)):
     try:
-        return await order_service.get_orders(user_id, db)
+        return await order_service.get_orders(current_user.id, db)
     except NotFoundException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
