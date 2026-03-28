@@ -1,4 +1,4 @@
-from .user import User
+from .user import User, UserRole
 from .category import Category
 from .cart import Cart
 from .product import Product
