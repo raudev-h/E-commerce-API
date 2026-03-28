@@ -36,9 +36,9 @@ async def create_order(current_user: Annotated[User, Depends(security.get_curren
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     
 @router.patch("/{order_id}", response_model=OrderResponse)
-async def cancel_order(order_id:UUID, db:AsyncSession = Depends(get_db)):
+async def cancel_order(current_user: Annotated[User, Depends(security.get_current_user)],order_id:UUID, db:AsyncSession = Depends(get_db)):
     try:
-        return await order_service.cancel_order(order_id, db)
+        return await order_service.cancel_order(current_user.id,order_id, db)
     except NotFoundException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except BadRequestException as e:

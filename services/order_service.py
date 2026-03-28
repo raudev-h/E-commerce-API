@@ -82,11 +82,14 @@ async def create_order(user_id:UUID, db:AsyncSession) -> Order:
 
     return order
 
-async def cancel_order(order_id:UUID, db:AsyncSession):
+async def cancel_order(user_id:UUID ,order_id:UUID, db:AsyncSession):
     cancellable_statuses = [Status.PENDING, Status.CONFIRMED]
 
     order = await _get_order_by_id(order_id, db)
     
+    if order.user_id != user_id:
+        raise NotFoundException("order not found")
+
     if not order.status in cancellable_statuses:
         raise BadRequestException("order cannot be cancelled")
 
