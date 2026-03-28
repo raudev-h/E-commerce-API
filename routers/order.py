@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from models import User
 from core.database import get_db
 from core import security
-from schemas import OrderCreate, OrderResponse
+from schemas import  OrderResponse
 from services import order_service
 from core import NotFoundException, BadRequestException, ConflictException
 from uuid import UUID
@@ -20,16 +20,16 @@ async def get_orders(current_user:Annotated[User, Depends(security.get_current_u
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 @router.get("/{id}", response_model=OrderResponse)
-async def get_order(id:UUID, user_id:UUID, db:AsyncSession = Depends(get_db)):
+async def get_order(id:UUID, current_user:Annotated[User, Depends(security.get_current_user)], db:AsyncSession = Depends(get_db)):
     try:
-        return await order_service.get_order(id,user_id,db)
+        return await order_service.get_order(id,current_user.id,db)
     except NotFoundException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 @router.post("/", response_model=OrderResponse, status_code=status.HTTP_201_CREATED)
-async def create_order(data:OrderCreate, db:AsyncSession = Depends(get_db)):
+async def create_order(current_user: Annotated[User, Depends(security.get_current_user)], db:AsyncSession = Depends(get_db)):
     try:
-        return await order_service.create_order(data,db)
+        return await order_service.create_order(current_user.id,db)
     except NotFoundException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except ConflictException as e:

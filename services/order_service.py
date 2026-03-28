@@ -2,7 +2,6 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from models import Order, OrderItem, Cart, CartItem, User, Product
 from models.order import Status
-from schemas import OrderCreate
 from core import BadRequestException, NotFoundException, ConflictException
 from uuid import UUID
 
@@ -34,16 +33,16 @@ async def get_order(order_id:UUID, user_id:UUID, db:AsyncSession):
 
     return order
 
-async def create_order(data:OrderCreate, db:AsyncSession) -> Order:
-    user = await db.execute(select(User).where(User.id == data.user_id, User.is_active))
+async def create_order(user_id:UUID, db:AsyncSession) -> Order:
+    user = await db.execute(select(User).where(User.id == user_id, User.is_active))
 
     if not user.scalar_one_or_none():
         raise NotFoundException("user not found")
     
-    items = await _get_all_items(data.user_id, db)
+    items = await _get_all_items(user_id, db)
 
     order = Order(
-            user_id=data.user_id,
+            user_id=user_id,
             status=Status.PENDING,
             total=0
         )

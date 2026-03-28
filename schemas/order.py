@@ -4,8 +4,6 @@ from uuid import UUID
 from datetime import datetime
 
 
-class OrderCreate(BaseModel):
-    user_id:UUID
 
 class OrderResponse(BaseModel):
     id:UUID
