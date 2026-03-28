@@ -2,7 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from models import CartItem, User, Product, Cart
 from schemas import CartItemAdd
-from core import NotFoundException
+from core import NotFoundException,BadRequestException, ConflictException
 from uuid import UUID
 
 
@@ -58,13 +58,22 @@ async def add_item(user_id:UUID, item:CartItemAdd, db:AsyncSession) -> CartItem:
     await db.refresh(cart_item)
     return cart_item
 
-async def delete_item(id:UUID, db:AsyncSession) -> None:
+async def delete_item(user_id: UUID, id:UUID, db:AsyncSession) -> None:
     cart_item = await db.execute(select(CartItem).where(CartItem.id == id))
+    cart = await db.execute(select(Cart).where(Cart.user_id == user_id))
+
+    cart = cart.scalar_one_or_none()
+
+    if not cart:
+        raise NotFoundException("cart not found")
 
     cart_item = cart_item.scalar_one_or_none()
 
     if not cart_item:
         raise NotFoundException("cart item not found")
+
+    if cart_item.cart_id != cart.id:
+        raise ConflictException("cart-item does not belong to this user")
 
     await db.delete(cart_item)
     await db.flush()
