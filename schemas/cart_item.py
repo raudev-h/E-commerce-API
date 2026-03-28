@@ -3,7 +3,6 @@ from uuid import UUID
 from datetime import datetime
 
 class CartItemAdd(BaseModel):
-    user_id:UUID
     product_id:UUID
     quantity:int = Field(gt=0)
 

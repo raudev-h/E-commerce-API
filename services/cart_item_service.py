@@ -2,11 +2,12 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from models import CartItem, User, Product, Cart
 from schemas import CartItemAdd
+from core import NotFoundException
 from uuid import UUID
 
 
-async def get_cart_items(id:UUID, db:AsyncSession) -> list[CartItem]:
-    cart = await db.execute(select(Cart).where(Cart.user_id == id))
+async def get_cart_items(user_id:UUID, db:AsyncSession) -> list[CartItem]:
+    cart = await db.execute(select(Cart).where(Cart.user_id == user_id))
     cart = cart.scalar_one_or_none()
 
     if not cart:
@@ -16,8 +17,8 @@ async def get_cart_items(id:UUID, db:AsyncSession) -> list[CartItem]:
 
     return list(items.scalars().all())
 
-async def add_item(item:CartItemAdd, db:AsyncSession) -> CartItem:     
-    user = await db.execute(select(User).where(User.id == item.user_id))
+async def add_item(user_id:UUID, item:CartItemAdd, db:AsyncSession) -> CartItem:     
+    user = await db.execute(select(User).where(User.id == user_id))
     user = user.scalar_one_or_none()
 
     if not user:
@@ -30,7 +31,7 @@ async def add_item(item:CartItemAdd, db:AsyncSession) -> CartItem:
     if not product:
         raise ValueError("product not found")
 
-    cart = await db.execute(select(Cart).where(Cart.user_id == item.user_id))
+    cart = await db.execute(select(Cart).where(Cart.user_id == user_id))
     cart = cart.scalar_one_or_none()
 
     if not cart:
@@ -63,7 +64,7 @@ async def delete_item(id:UUID, db:AsyncSession) -> None:
     cart_item = cart_item.scalar_one_or_none()
 
     if not cart_item:
-        raise ValueError("cart item not found")
+        raise NotFoundException("cart item not found")
 
     await db.delete(cart_item)
     await db.flush()
