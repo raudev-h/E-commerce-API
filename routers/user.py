@@ -1,24 +1,27 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.database import get_db
+from core import security
+from models import User, UserRole
 from schemas import UserCreate, UserUpdateProfile, UserResponse
 from services import user_service
+from typing import Annotated
 from uuid import UUID
 
 router = APIRouter(prefix="/user", tags=["/user"])
 
 
 @router.get("/", response_model=list[UserResponse])
-async def get_users(db: AsyncSession = Depends(get_db)):
-    return await user_service.get_all_users(db)
+async def get_users(current_admin: Annotated[User, Depends(security.get_current_admin)],db: AsyncSession = Depends(get_db)):
+        return await user_service.get_all_users(db)
 
 
 @router.get("/{id}", response_model=UserResponse)
-async def get_user(id: UUID, db: AsyncSession = Depends(get_db)):
+async def get_user(current_admin: Annotated[User, Depends(security.get_current_admin)],id: UUID, db: AsyncSession = Depends(get_db)):
     try:
         return await user_service.get_user_by_id(db, id)
     except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail={str(e)})
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
 @router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
