@@ -1,8 +1,11 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.database import get_db
+from core import security
+from models import User
 from schemas import CategoryCreate, CategoryUpdate, CategoryResponse
 from services import category_service
+from typing import Annotated
 from uuid import UUID
 
 router = APIRouter(prefix="/category", tags=["/category"])
@@ -22,7 +25,7 @@ async def get_category(id:UUID, db:AsyncSession = Depends(get_db)):
 
 
 @router.post("/", response_model=CategoryResponse, status_code=status.HTTP_201_CREATED)
-async def create_category(data:CategoryCreate, db:AsyncSession = Depends(get_db)):
+async def create_category(data:CategoryCreate, current_admin: Annotated[User, Depends(security.get_current_admin)], db:AsyncSession = Depends(get_db)):
     try:
         return await category_service.create_category(db, data)
     except ValueError as e:
@@ -30,14 +33,14 @@ async def create_category(data:CategoryCreate, db:AsyncSession = Depends(get_db)
 
 
 @router.patch("/{id}", response_model=CategoryResponse)
-async def update_user(id:UUID, data:CategoryUpdate, db:AsyncSession = Depends(get_db)):
+async def update_user(id:UUID, data:CategoryUpdate, current_admin: Annotated[User, Depends(security.get_current_admin)], db:AsyncSession = Depends(get_db)):
     try:
         return await category_service.update_category(id, data, db)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))    
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_category(id:UUID, db:AsyncSession = Depends(get_db)):
+async def delete_category(id:UUID, current_admin: Annotated[User, Depends(security.get_current_admin)] ,db:AsyncSession = Depends(get_db)):
     try:
         await category_service.delete_category(id, db)
     except ValueError as e:
