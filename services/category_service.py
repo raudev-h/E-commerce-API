@@ -2,6 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from models import Category
 from schemas import CategoryCreate, CategoryUpdate
+from core import NotFoundException, ConflictException
 from uuid import UUID
 
 
@@ -14,7 +15,7 @@ async def get_category_by_id(db:AsyncSession, id:UUID) -> Category:
     category = result.scalar_one_or_none()
     
     if not category:
-        raise ValueError("category not found")
+        raise NotFoundException("category not found")
     
     return category
 
@@ -22,7 +23,7 @@ async def create_category(db:AsyncSession, data:CategoryCreate) -> Category:
     result = await db.execute(select(Category).where(Category.name == data.name, Category.is_active == True))
 
     if result.scalar_one_or_none():
-        raise ValueError(f"Category: {data.name} already exists")
+        raise ConflictException(f"Category: {data.name} already exists")
     
     category = Category(
         name = data.name,
