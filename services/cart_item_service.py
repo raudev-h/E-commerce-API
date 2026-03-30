@@ -11,7 +11,7 @@ async def get_cart_items(user_id:UUID, db:AsyncSession) -> list[CartItem]:
     cart = cart.scalar_one_or_none()
 
     if not cart:
-        raise ValueError("user not found")
+        raise NotFoundException("user not found")
     
     items = await db.execute(select(CartItem).where(CartItem.cart_id == cart.id))
 
@@ -22,20 +22,20 @@ async def add_item(user_id:UUID, item:CartItemAdd, db:AsyncSession) -> CartItem:
     user = user.scalar_one_or_none()
 
     if not user:
-        raise ValueError("user not found")
+        raise NotFoundException("user not found")
     
     product = await db.execute(select(Product).where(Product.id == item.product_id, Product.is_active))
 
     product = product.scalar_one_or_none()
 
     if not product:
-        raise ValueError("product not found")
+        raise NotFoundException("product not found")
 
     cart = await db.execute(select(Cart).where(Cart.user_id == user_id))
     cart = cart.scalar_one_or_none()
 
     if not cart:
-        raise ValueError("cart not found")
+        raise NotFoundException("cart not found")
     
     existent_cart_item = await db.execute(select(CartItem).where(CartItem.cart_id == cart.id, CartItem.product_id == item.product_id))
 
