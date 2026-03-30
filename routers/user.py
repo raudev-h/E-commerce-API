@@ -1,8 +1,8 @@
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.database import get_db
 from core import security
-from models import User, UserRole
+from models import User
 from schemas import UserCreate, UserUpdateProfile, UserResponse
 from services import user_service
 from typing import Annotated
@@ -18,24 +18,15 @@ async def get_users(current_admin: Annotated[User, Depends(security.get_current_
 
 @router.get("/{id}", response_model=UserResponse)
 async def get_user(current_admin: Annotated[User, Depends(security.get_current_admin)],id: UUID, db: AsyncSession = Depends(get_db)):
-    try:
-        return await user_service.get_user_by_id(db, id)
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    return await user_service.get_user_by_id(db, id)
 
 
 @router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def create_user(data: UserCreate, db: AsyncSession = Depends(get_db)):
-    try:
-        return await user_service.create_user(db, data)
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    return await user_service.create_user(db, data)
 
 
 @router.patch("/{id}", response_model=UserResponse)
 async def update_user_profile(
     id: UUID, data: UserUpdateProfile, db: AsyncSession = Depends(get_db)):
-    try:
-        return await user_service.update_user_profle(db, id, data)
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    return await user_service.update_user_profle(db, id, data)

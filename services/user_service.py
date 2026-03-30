@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from core import security
-
+from core import NotFoundException, ConflictException
 from models import User, Cart
 from schemas import UserCreate, UserUpdateProfile
 from uuid import UUID
@@ -14,14 +14,14 @@ async def get_user_by_id(db:AsyncSession, id:UUID) -> User:
     result = await db.execute(select(User).where(User.id == id))
     user = result.scalar_one_or_none()
     if not user:
-        raise ValueError("User not found")
+        raise NotFoundException("User not found")
     return user
 
 async def create_user(db:AsyncSession, data:UserCreate) -> User:
     result = await db.execute(select(User).where(User.email == data.email))
     
     if result.scalar_one_or_none():
-        raise ValueError("Email already registered")
+        raise ConflictException("Email already registered")
     
     user = User(
         first_name = data.first_name,
