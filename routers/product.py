@@ -23,30 +23,19 @@ async def get_products(
 
 @router.get("/{id}", response_model=ProductResponse)
 async def get_product(id: UUID, db: AsyncSession = Depends(get_db)):
-    try:
-        return await product_service.get_product_by_id(id, db)
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    return await product_service.get_product_by_id(id, db)
 
 
 @router.post("/", response_model=ProductResponse, status_code=status.HTTP_201_CREATED)
 async def create_product(data: ProductCreate,current_admin: Annotated[User, Depends(security.get_current_admin)], db: AsyncSession = Depends(get_db)):
-    try:
-        return await product_service.create_product(db, data)
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    return await product_service.create_product(db, data)
 
 
 @router.patch("/{id}", response_model=ProductResponse)
 async def update_product(id:UUID, data:ProductUpdate, current_admin: Annotated[User, Depends(security.get_current_admin)],db:AsyncSession = Depends(get_db)):
-    try:
-        return await product_service.update_product(id, data, db) 
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
-    
+    return await product_service.update_product(id, data, db) 
+
+
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_product(id:UUID, current_admin: Annotated[User, Depends(security.get_current_admin)],db:AsyncSession = Depends(get_db)):
-    try:
-        await product_service.delete_product(id, db)
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    await product_service.delete_product(id, db)
