@@ -80,4 +80,4 @@ async def delete_item(user_id: UUID, id:UUID, db:AsyncSession) -> None:
 
 def _unavailable_stock(product_stock:int, item_quantity:int, message:str):
     if product_stock < item_quantity:
-        raise ValueError(message)
+        raise BadRequestException(message)
