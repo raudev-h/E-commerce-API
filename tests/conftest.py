@@ -3,31 +3,27 @@ import pytest_asyncio
 from core.config import settings
 from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
-from sqlalchemy.orm import DeclarativeBase
 from main import app
 from core.database import Base, get_db
 
 
-test_engine = create_async_engine(settings.test_database_url, echo=False)
-
-TestSessionLocal = async_sessionmaker(
-    test_engine,
-    class_=AsyncSession,
-    expire_on_commit=False
-)
-
-@pytest_asyncio.fixture(scope="session", autouse=True)
+@pytest_asyncio.fixture(scope="function", autouse=True)
 async def setup_database():
+    test_engine = create_async_engine(settings.test_database_url, echo=False)
+    
     async with test_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    yield
+    yield test_engine
     async with test_engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
 
 
 @pytest_asyncio.fixture
-async def db_session():
-    async with TestSessionLocal() as session:
+async def db_session(setup_database):
+    engine = setup_database
+    session_factory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    
+    async with session_factory() as session:
         yield session
         await session.rollback()
 
