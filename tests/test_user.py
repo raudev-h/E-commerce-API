@@ -1,5 +1,6 @@
 import pytest
-from .conftest import USER_DATA
+import jwt
+from .conftest import USER_DATA, auth_client, auth_admin_client
 from httpx import AsyncClient
 
 
@@ -29,3 +30,15 @@ async def test_create_user_without_confirm_password(client:AsyncClient):
     del no_confirm_data["confirm_password"]
     response = await client.post("/user/", json=no_confirm_data)
     assert response.status_code == 422
+
+async def test_get_non_existent_user(auth_admin_client:AsyncClient):
+    response = await auth_admin_client.get("/user/00000000-0000-0000-0000-000000000000")
+    assert response.status_code == 404
+
+async def test_get_user_by_id(auth_admin_client:AsyncClient):
+    token = auth_admin_client.headers["Authorization"].split(" ")[1]
+    payload = jwt.decode(token, options={"verify_signature":False})
+    user_id = payload.get("sub")
+
+    response = await auth_admin_client.get(f"/user/{user_id}")
+    assert response.status_code == 200
