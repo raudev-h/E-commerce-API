@@ -27,7 +27,7 @@ async def create_category(data:CategoryCreate, current_admin: Annotated[User, De
 
 
 @router.patch("/{id}", response_model=CategoryResponse)
-async def update_user(id:UUID, data:CategoryUpdate, current_admin: Annotated[User, Depends(security.get_current_admin)], db:AsyncSession = Depends(get_db)):
+async def update_category(id:UUID, data:CategoryUpdate, current_admin: Annotated[User, Depends(security.get_current_admin)], db:AsyncSession = Depends(get_db)):
     return await category_service.update_category(id, data, db)
 
 
