@@ -6,11 +6,19 @@ from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, Asyn
 from main import app
 from core.database import Base, get_db
 
+USER_DATA = {
+    "first_name": "Test",
+    "last_name": "User",
+    "email": "test@test.com",
+    "password": "password123",
+    "confirm_password": "password123",
+}
+
 
 @pytest_asyncio.fixture(scope="function", autouse=True)
 async def setup_database():
     test_engine = create_async_engine(settings.test_database_url, echo=False)
-    
+
     async with test_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield test_engine
@@ -21,11 +29,14 @@ async def setup_database():
 @pytest_asyncio.fixture
 async def db_session(setup_database):
     engine = setup_database
-    session_factory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
-    
+    session_factory = async_sessionmaker(
+        engine, class_=AsyncSession, expire_on_commit=False
+    )
+
     async with session_factory() as session:
         yield session
         await session.rollback()
+
 
 @pytest_asyncio.fixture
 async def client(db_session):
@@ -41,3 +52,15 @@ async def client(db_session):
         yield ac
 
     app.dependency_overrides.clear()
+
+
+@pytest_asyncio.fixture
+async def auth_client(client: AsyncClient):
+    await client.post("/user/", json=USER_DATA)
+    response = await client.post(
+        "/auth/login/",
+        data={"username": USER_DATA["email"], "password": USER_DATA["password"]},
+    )
+    token = response.json()["access_token"]
+    client.headers["Authorization"] = f"Beares {token}"
+    return client
