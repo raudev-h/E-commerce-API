@@ -14,6 +14,6 @@ class CategoryResponse(BaseModel):
     id:UUID
     name:str
     description:str | None = None
-
+    is_active:bool
     model_config = {"from_attributes":True}
 
