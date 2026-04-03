@@ -24,6 +24,11 @@ ADMIN_DATA = {
     "confirm_password": "password123",
 }
 
+CATEGORY_DATA = {
+    "name":"Tech",
+    "description":"tech articles"
+}
+
 @pytest_asyncio.fixture(scope="function", autouse=True)
 async def setup_database():
     test_engine = create_async_engine(settings.test_database_url, echo=False)
@@ -88,3 +93,8 @@ async def auth_admin_client(client:AsyncClient, db_session):
     token = response.json()["access_token"]
     client.headers["Authorization"] = f"Bearer {token}"
     return client
+
+@pytest_asyncio.fixture
+async def created_category(auth_admin_client:AsyncClient):
+    response = await auth_admin_client.post("/category/", json=CATEGORY_DATA)
+    return response.json()
