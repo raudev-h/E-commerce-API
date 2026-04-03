@@ -1,6 +1,6 @@
 import pytest
 import pytest_asyncio
-from models import User,UserRole
+from models import User, UserRole, Category, Product
 from core.config import settings
 from httpx import AsyncClient, ASGITransport
 from sqlalchemy import select
@@ -24,10 +24,8 @@ ADMIN_DATA = {
     "confirm_password": "password123",
 }
 
-CATEGORY_DATA = {
-    "name":"Tech",
-    "description":"tech articles"
-}
+CATEGORY_DATA = {"name": "Tech", "description": "tech articles"}
+
 
 @pytest_asyncio.fixture(scope="function", autouse=True)
 async def setup_database():
@@ -79,11 +77,14 @@ async def auth_client(client: AsyncClient):
     client.headers["Authorization"] = f"Bearer {token}"
     return client
 
+
 @pytest_asyncio.fixture
-async def auth_admin_client(client:AsyncClient, db_session):
+async def auth_admin_client(client: AsyncClient, db_session):
     await client.post("/user/", json=ADMIN_DATA)
-    result = await db_session.execute(select(User).where(User.email == ADMIN_DATA["email"]))
-    user:User = result.scalar_one()
+    result = await db_session.execute(
+        select(User).where(User.email == ADMIN_DATA["email"])
+    )
+    user: User = result.scalar_one()
     user.role = UserRole.admin
     await db_session.flush()
     response = await client.post(
@@ -94,7 +95,40 @@ async def auth_admin_client(client:AsyncClient, db_session):
     client.headers["Authorization"] = f"Bearer {token}"
     return client
 
+
 @pytest_asyncio.fixture
-async def created_category(auth_admin_client:AsyncClient):
-    response = await auth_admin_client.post("/category/", json=CATEGORY_DATA)
-    return response.json()
+async def created_category(db_session):
+    category = Category(name="Tech", description="tech articles")
+    db_session.add(category)
+    await db_session.flush()
+    await db_session.refresh(category)
+    return {
+        "id": str(category.id),
+        "name": category.name,
+        "description": category.description,
+        "is_active": category.is_active,
+    }
+
+
+@pytest_asyncio.fixture
+async def created_product(db_session, created_category: dict):
+    product = Product(
+        name="iPhone 12 Pro Max",
+        description="2021 Apple smartphone",
+        price=300,
+        stock=10,
+        category_id=created_category["id"],
+    )
+    db_session.add(product)
+    await db_session.flush()
+    await db_session.refresh(product)
+
+    return {
+        "id": str(product.id),
+        "name": product.name,
+        "description": product.description,
+        "price": product.price,
+        "stock": product.stock,
+        "category_id": str(product.category_id),
+        "is_active": product.is_active,
+    }
