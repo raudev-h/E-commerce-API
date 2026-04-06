@@ -1,7 +1,8 @@
 import pytest
 import pytest_asyncio
-from models import User, UserRole, Category, Product
+from models import User, UserRole, Category, Product, CartItem, Cart, Order, OrderItem, Status
 from core.config import settings
+from core.security import get_password_hash
 from httpx import AsyncClient, ASGITransport
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
@@ -131,4 +132,95 @@ async def created_product(db_session, created_category: dict):
         "stock": product.stock,
         "category_id": str(product.category_id),
         "is_active": product.is_active,
+    }
+
+@pytest_asyncio.fixture
+async def created_user(db_session):
+    user = User(
+        first_name= "Test",
+        last_name= "User",
+        email= "user@test.com",
+        password= get_password_hash("password123"),
+    )
+    db_session.add(user)
+    await db_session.flush()
+    await db_session.refresh(user)
+
+    cart = Cart(
+        user_id=user.id,
+    )
+    db_session.add(cart)
+    await db_session.flush()
+    await db_session.refresh(cart)
+
+    return {
+        "id":str(user.id),
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "email": user.email,
+        "role": user.role,
+        "is_active": user.is_active,
+        "created_at": user.created_at,
+        "updated_at": user.updated_at,
+        "cart_id":cart.id
+    }
+
+@pytest_asyncio.fixture
+async def auth_user_client(client: AsyncClient, created_user):
+    response = await client.post(
+        "/auth/login",
+        data={"username": created_user["email"], "password": "password123"},
+    )
+    token = response.json()["access_token"]
+    client.headers["Authorization"] = f"Bearer {token}"
+    return client
+
+
+@pytest_asyncio.fixture
+async def created_cart_item(db_session, created_user, created_product):    
+    cart_id = created_user["cart_id"]
+    cart_item = CartItem(
+        cart_id=cart_id,
+        product_id=created_product["id"],
+        quantity=2
+    )
+    db_session.add(cart_item)
+    await db_session.flush()
+    await db_session.refresh(cart_item)
+
+    return{
+        "id": str(cart_item.id),
+        "cart_id": str(cart_id),
+        "product_id": created_product["id"],
+        "quantity": cart_item.quantity,
+        "updated_at": cart_item.updated_at,
+        "price":created_product["price"]
+    }
+
+@pytest_asyncio.fixture
+async def created_oder(db_session, created_user, created_cart_item):
+    total_price = created_cart_item["quantity"] * created_cart_item["price"]
+    order = Order(
+        user_id=created_user["id"],
+        total=total_price,
+        status=Status.PENDING
+    )
+    db_session.add(order)
+    await db_session.flush()
+    await db_session.refresh(order)
+
+    order_item = OrderItem(
+        order_id=str(order.id),
+        product_id=str(created_cart_item["product_id"]),
+        quantity=created_cart_item["quantity"],
+        unit_price= created_cart_item["price"]
+    )
+    db_session.add(order_item)
+    await db_session.flush()
+
+    return {
+        "id":str(order.id),
+        "user_id":str(order.user_id),
+        "total":order.total,
+        "status":order.status
     }
