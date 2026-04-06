@@ -53,7 +53,7 @@ async def update_user_profle(db:AsyncSession, id:UUID, data:UserUpdateProfile) -
     return user
 
 async def autenticate_user(email:str, password:str, db:AsyncSession):
-    user = await db.execute(select(User).where(User.email == email))
+    user = await db.execute(select(User).where(User.email == email, User.is_active == True))
 
     user = user.scalar_one_or_none()
 
