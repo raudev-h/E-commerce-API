@@ -8,10 +8,11 @@ from uuid import UUID, uuid4
 class Cart(Base):
 
     __tablename__ = "cart"
+    __table_args__ = {"schema": "ecommerce"}
 
     id:Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
 
-    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("ecommerce.users.id"))
 
     created_at:Mapped[datetime] = mapped_column(server_default=func.now())
 

@@ -19,11 +19,12 @@ class Order(Base):
 
     __table_args__ = (
         CheckConstraint("total >= 0", name="total_non_negative"),
+        {"schema": "ecommerce"}
     )
 
     id:Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
 
-    user_id:Mapped[UUID] = mapped_column(ForeignKey("users.id"))
+    user_id:Mapped[UUID] = mapped_column(ForeignKey("ecommerce.users.id"))
 
     total:Mapped[float] = mapped_column(Float)
 

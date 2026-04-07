@@ -11,13 +11,15 @@ class CartItem(Base):
 
     __table_args__ = (
         CheckConstraint("quantity > 0", name="quantity_non_negative"),
+        {"schema": "ecommerce"}
+
     )
 
     id:Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
 
-    cart_id:Mapped[UUID] = mapped_column(ForeignKey("cart.id"))
+    cart_id:Mapped[UUID] = mapped_column(ForeignKey("ecommerce.cart.id"))
 
-    product_id:Mapped[UUID] = mapped_column(ForeignKey("products.id"))
+    product_id:Mapped[UUID] = mapped_column(ForeignKey("ecommerce.products.id"))
 
     quantity:Mapped[int] = mapped_column(Integer)
 

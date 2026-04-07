@@ -8,6 +8,7 @@ from core.config import settings
 engine = create_async_engine(
     settings.database_url,
     echo=True,  # Muestra el SQL generado en consola (útil en desarrollo)
+    connect_args={"server_settings": {"search_path": settings.db_schema}},
 )
 
 AsyncSessionLocal = async_sessionmaker(

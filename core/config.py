@@ -8,5 +8,6 @@ class Settings(BaseSettings):
     database_url: str
     secret_key:str
     test_database_url:str
+    db_schema: str = "ecommerce"
 
 settings = Settings() # type: ignore

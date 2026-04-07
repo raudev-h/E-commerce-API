@@ -10,7 +10,8 @@ class Product(Base):
 
     __table_args__ = (
         CheckConstraint("price >= 0", name="price_positive"),
-        CheckConstraint("stock >= 0", name="stock_non_negative")
+        CheckConstraint("stock >= 0", name="stock_non_negative"),
+        {"schema": "ecommerce"}
     )
 
     id:Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
@@ -23,7 +24,7 @@ class Product(Base):
 
     stock:Mapped[int] = mapped_column(Integer)
 
-    category_id:Mapped[UUID] = mapped_column(ForeignKey("category.id"))
+    category_id:Mapped[UUID] = mapped_column(ForeignKey("ecommerce.category.id"))
 
     is_active:Mapped[bool] = mapped_column(Boolean, default=True)
 

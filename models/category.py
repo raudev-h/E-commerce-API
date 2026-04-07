@@ -6,6 +6,7 @@ from uuid import uuid4, UUID
 class Category(Base):
 
     __tablename__ = "category"
+    __table_args__ = {"schema": "ecommerce"}
 
     id:Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
 

@@ -7,12 +7,13 @@ from datetime import datetime
 class OrderItem(Base):
 
     __tablename__ = "order_items"
+    __table_args__ = {"schema": "ecommerce"}
 
     id:Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
 
-    order_id:Mapped[UUID] = mapped_column(ForeignKey("orders.id"))
+    order_id:Mapped[UUID] = mapped_column(ForeignKey("ecommerce.orders.id"))
 
-    product_id:Mapped[UUID] = mapped_column(ForeignKey("products.id"))
+    product_id:Mapped[UUID] = mapped_column(ForeignKey("ecommerce.products.id"))
 
     quantity:Mapped[int] = mapped_column(Integer)
 

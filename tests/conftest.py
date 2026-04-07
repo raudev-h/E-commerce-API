@@ -4,7 +4,7 @@ from models import User, UserRole, Category, Product, CartItem, Cart, Order, Ord
 from core.config import settings
 from core.security import get_password_hash
 from httpx import AsyncClient, ASGITransport
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from main import app
 from core.database import Base, get_db
@@ -33,10 +33,12 @@ async def setup_database():
     test_engine = create_async_engine(settings.test_database_url, echo=False)
 
     async with test_engine.begin() as conn:
+        await conn.execute(text(f"CREATE SCHEMA IF NOT EXISTS {settings.db_schema}"))
         await conn.run_sync(Base.metadata.create_all)
     yield test_engine
     async with test_engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
+        await conn.execute(text(f"DROP SCHEMA IF EXISTS {settings.db_schema}"))
 
 
 @pytest_asyncio.fixture
