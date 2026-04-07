@@ -1,26 +1,10 @@
 import pytest
 from httpx import AsyncClient
-
-'''
-Casos De Prueba
-1-obtener todas las ordenes y que devuelva una lista
-2-intentar obtener las ordenes con el user_id incorrecto
-3-obtener una orden por id
-4-obtener una orden con id incorrecto
-5-crear una orden
-6-crear una orden con user_id incorrecto
-7-crear una orden de un usuario inactivo
-8-crear una orden con el carrito vacío
-9-cancelar una orden
-10-cancelar una orden con order_id incorrecto
-11-cancelar una orden con user_id incorrecto
-12-cancelar una orden sin cancellable status
-13-Verificar que el stock se descuenta correctamente al crear una orden
-14-Verificar que el carrito queda vacío después de crear la orden
-'''
+from sqlalchemy import select
+from models import Order, Status, Product, CartItem
 
 
-async def test_get_orders_returns_list(auth_user_client: AsyncClient, created_oder):
+async def test_get_orders_returns_list(auth_user_client: AsyncClient, created_order):
     # Arrange - orden ya existe en DB para el usuario autenticado
 
     # Act
@@ -30,12 +14,12 @@ async def test_get_orders_returns_list(auth_user_client: AsyncClient, created_od
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list)
-    assert any(order["id"] == created_oder["id"] for order in data)
+    assert any(order["id"] == created_order["id"] for order in data)
 
 
-async def test_get_order_with_different_user(auth_client: AsyncClient, created_oder):
+async def test_get_order_with_different_user(auth_client: AsyncClient, created_order):
     # Arrange - admin intenta obtener una orden que pertenece a otro usuario
-    order_id = created_oder["id"]
+    order_id = created_order["id"]
 
     # Act
     response = await auth_client.get(f"/order/{order_id}")
@@ -44,9 +28,9 @@ async def test_get_order_with_different_user(auth_client: AsyncClient, created_o
     assert response.status_code == 404
 
 
-async def test_get_order_by_id(auth_user_client: AsyncClient, created_oder):
+async def test_get_order_by_id(auth_user_client: AsyncClient, created_order):
     # Arrange
-    order_id = created_oder["id"]
+    order_id = created_order["id"]
 
     # Act
     response = await auth_user_client.get(f"/order/{order_id}")
@@ -55,8 +39,8 @@ async def test_get_order_by_id(auth_user_client: AsyncClient, created_oder):
     assert response.status_code == 200
     data = response.json()
     assert data["id"] == order_id
-    assert data["user_id"] == created_oder["user_id"]
-    assert data["total"] == created_oder["total"]
+    assert data["user_id"] == created_order["user_id"]
+    assert data["total"] == created_order["total"]
 
 
 async def test_get_order_with_wrong_id(auth_user_client: AsyncClient):
@@ -91,3 +75,56 @@ async def test_create_order_without_auth(client: AsyncClient):
 
     # Assert
     assert response.status_code == 401
+
+async def test_create_order_with_empty_cart(auth_user_client:AsyncClient):
+    response = await auth_user_client.post("/order/")
+    assert response.status_code == 409
+
+async def test_cancel_order(auth_user_client:AsyncClient, created_order):
+    response = await auth_user_client.patch(f"/order/{created_order["id"]}")
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "canceled"
+
+async def test_cancel_order_with_wrong_id(auth_user_client:AsyncClient, created_order):
+    response = await auth_user_client.patch("/order/00000000-0000-0000-0000-000000000000")
+    
+    assert response.status_code == 404
+    assert created_order["status"] == "pending"
+
+async def test_cancel_order_when_order_belongs_to_other_user(auth_client:AsyncClient, created_order):
+    response = await auth_client.patch(f"/order/{created_order["id"]}")
+
+    assert response.status_code == 404
+
+async def test_cancel_order_without_been_cancellable(auth_user_client:AsyncClient, db_session, created_order):
+    order = await db_session.execute(select(Order).where(Order.id == created_order["id"]))
+    order = order.scalar_one_or_none()
+    order.status = Status.DELIVERED
+
+    await db_session.flush()
+
+    response = await auth_user_client.patch(f"/order/{created_order["id"]}")
+    assert response.status_code == 400
+
+    order = await db_session.execute(select(Order).where(Order.id == created_order["id"]))
+    order = order.scalar_one_or_none()
+    assert  order.status == Status.DELIVERED
+
+async def test_verify_empty_cart_after_order_and_stock_deduct_correctly(auth_user_client:AsyncClient, db_session, created_cart_item):
+    product = await db_session.execute(select(Product).where(Product.id == created_cart_item["product_id"]))
+    product = product.scalar_one_or_none()
+    expected_stock = product.stock - created_cart_item["quantity"]
+
+    response = await auth_user_client.post("/order/")
+
+    product = await db_session.execute(select(Product).where(Product.id == created_cart_item["product_id"]))
+    product = product.scalar_one_or_none()
+    
+    assert response.status_code == 201
+    assert product.stock == expected_stock
+
+    cart_items = await db_session.execute(select(CartItem).where(CartItem.cart_id == created_cart_item["cart_id"]))
+    cart_items = cart_items.scalars().all()
+    assert cart_items == []

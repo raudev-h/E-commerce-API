@@ -199,7 +199,7 @@ async def created_cart_item(db_session, created_user, created_product):
     }
 
 @pytest_asyncio.fixture
-async def created_oder(db_session, created_user, created_cart_item):
+async def created_order(db_session, created_user, created_cart_item):
     total_price = created_cart_item["quantity"] * created_cart_item["price"]
     order = Order(
         user_id=created_user["id"],
@@ -223,5 +223,6 @@ async def created_oder(db_session, created_user, created_cart_item):
         "id":str(order.id),
         "user_id":str(order.user_id),
         "total":order.total,
-        "status":order.status
+        "status":order.status.value,
+        "product_id":str(created_cart_item["product_id"])
     }
