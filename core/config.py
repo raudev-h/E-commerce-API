@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     
     database_url: str
     secret_key:str
-    test_database_url:str
+    test_database_url:str | None = None
     db_schema: str = "ecommerce"
 
 settings = Settings() # type: ignore
