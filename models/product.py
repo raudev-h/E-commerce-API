@@ -9,7 +9,7 @@ class Product(Base):
     __tablename__ = "products"
 
     __table_args__ = (
-        CheckConstraint("price > 0", name="price_positive"),
+        CheckConstraint("price >= 0", name="price_positive"),
         CheckConstraint("stock >= 0", name="stock_non_negative")
     )
 
