@@ -8,6 +8,8 @@ from alembic import context
 from core.database import Base
 from models import user
 
+from core.config import settings
+
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
@@ -32,7 +34,7 @@ target_metadata = Base.metadata
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
-
+config.set_main_option("sqlalchemy.url", settings.database_url.replace("+asyncpg", ""))
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
 
@@ -72,11 +74,14 @@ def run_migrations_online() -> None:
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+            connection=connection,
+            target_metadata=target_metadata,
+            include_schemas=True,
+            version_table_schema="ecommerce",
+    )
 
-        with context.begin_transaction():
-            context.run_migrations()
+    with context.begin_transaction():
+        context.run_migrations()
 
 
 if context.is_offline_mode():
