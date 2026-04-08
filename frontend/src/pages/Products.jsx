@@ -180,6 +180,8 @@ function EmptyState({ hasFilters, onClear }) {
   )
 }
 
+const LIMIT = 10
+
 export default function Products() {
   const { user } = useAuth()
   const { addItem } = useCart()
@@ -188,6 +190,9 @@ export default function Products() {
   const [products, setProducts] = useState([])
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [hasMore, setHasMore] = useState(false)
+  const [skip, setSkip] = useState(0)
   const [error, setError] = useState(null)
   const [search, setSearch] = useState('')
   const [selectedCategory, setSelectedCategory] = useState(null)
@@ -201,17 +206,31 @@ export default function Products() {
       .catch(() => {})
   }, [])
 
+  // Reset when filters change
   useEffect(() => {
-    setLoading(true)
+    setProducts([])
+    setSkip(0)
+    setHasMore(false)
+  }, [debouncedSearch, selectedCategory])
+
+  // Fetch when skip or filters change
+  useEffect(() => {
+    const isLoadMore = skip > 0
+    isLoadMore ? setLoadingMore(true) : setLoading(true)
     setError(null)
-    const params = {}
+
+    const params = { skip, limit: LIMIT }
     if (debouncedSearch) params.search = debouncedSearch
     if (selectedCategory) params.category_id = selectedCategory
+
     getProducts(params)
-      .then(setProducts)
+      .then((data) => {
+        setProducts((prev) => isLoadMore ? [...prev, ...data] : data)
+        setHasMore(data.length === LIMIT)
+      })
       .catch(() => setError('Could not load products. Please try again.'))
-      .finally(() => setLoading(false))
-  }, [debouncedSearch, selectedCategory])
+      .finally(() => isLoadMore ? setLoadingMore(false) : setLoading(false))
+  }, [skip, debouncedSearch, selectedCategory])
 
   async function handleAddToCart(productId) {
     if (!user) {
@@ -241,7 +260,7 @@ export default function Products() {
         <p className="text-white/30 text-sm mt-1.5">
           {loading
             ? 'Loading…'
-            : `${products.length} item${products.length !== 1 ? 's' : ''}${hasFilters ? ' found' : ''}`
+            : `${products.length}${hasMore ? '+' : ''} item${products.length !== 1 ? 's' : ''}${hasFilters ? ' found' : ''}`
           }
         </p>
       </div>
@@ -322,20 +341,35 @@ export default function Products() {
 
       {/* Grid */}
       {!error && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {loading
-            ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
-            : products.length === 0
-              ? <EmptyState hasFilters={hasFilters} onClear={clearFilters} />
-              : products.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    onAddToCart={handleAddToCart}
-                  />
-                ))
-          }
-        </div>
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {loading
+              ? Array.from({ length: LIMIT }).map((_, i) => <SkeletonCard key={i} />)
+              : products.length === 0
+                ? <EmptyState hasFilters={hasFilters} onClear={clearFilters} />
+                : products.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      onAddToCart={handleAddToCart}
+                    />
+                  ))
+            }
+            {loadingMore && Array.from({ length: 3 }).map((_, i) => <SkeletonCard key={`more-${i}`} />)}
+          </div>
+
+          {hasMore && !loading && (
+            <div className="flex justify-center mt-10">
+              <button
+                onClick={() => setSkip((s) => s + LIMIT)}
+                disabled={loadingMore}
+                className="px-6 py-2.5 text-sm font-medium border border-white/10 text-white/50 rounded-xl hover:border-white/25 hover:text-white/80 transition-all duration-150 disabled:opacity-40"
+              >
+                {loadingMore ? 'Loading…' : 'Load more'}
+              </button>
+            </div>
+          )}
+        </>
       )}
 
       {/* Toast notification */}
