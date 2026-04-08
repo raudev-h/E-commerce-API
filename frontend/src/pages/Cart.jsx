@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { getCart, updateCartItem, removeCartItem, clearCart } from '../api/cart'
 import { createOrder } from '../api/orders'
+import { useCart } from '../context/CartContext'
 
 function SkeletonRow() {
   return (
@@ -20,6 +20,9 @@ function CartItem({ item, onUpdateQty, onRemove }) {
   const [qty, setQty] = useState(item.quantity)
   const [updating, setUpdating] = useState(false)
   const [removing, setRemoving] = useState(false)
+
+  // Keep local qty in sync when context updates the item
+  useEffect(() => { setQty(item.quantity) }, [item.quantity])
 
   async function handleQty(delta) {
     const next = qty + delta
@@ -128,34 +131,23 @@ function CartItem({ item, onUpdateQty, onRemove }) {
 
 export default function Cart() {
   const navigate = useNavigate()
+  const { cart, loading, updateItem, removeItem, emptyCart } = useCart()
 
-  const [cart, setCart] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
   const [placingOrder, setPlacingOrder] = useState(false)
   const [orderError, setOrderError] = useState(null)
 
-  useEffect(() => {
-    setLoading(true)
-    getCart()
-      .then(setCart)
-      .catch(() => setError('Could not load your cart.'))
-      .finally(() => setLoading(false))
-  }, [])
+  const error = !loading && cart === null ? 'Could not load your cart.' : null
 
   async function handleUpdateQty(itemId, quantity) {
-    const updated = await updateCartItem(itemId, quantity)
-    setCart(updated)
+    await updateItem(itemId, quantity)
   }
 
   async function handleRemove(itemId) {
-    const updated = await removeCartItem(itemId)
-    setCart(updated)
+    await removeItem(itemId)
   }
 
   async function handleClear() {
-    const updated = await clearCart()
-    setCart(updated)
+    await emptyCart()
   }
 
   async function handlePlaceOrder() {

@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { getProduct } from '../api/products'
-import { addToCart } from '../api/cart'
 import { useAuth } from '../context/AuthContext'
+import { useCart } from '../context/CartContext'
 
 export default function ProductDetail() {
   const { id } = useParams()
   const { user } = useAuth()
+  const { addItem } = useCart()
   const navigate = useNavigate()
 
   const [product, setProduct] = useState(null)
@@ -33,7 +34,7 @@ export default function ProductDetail() {
     if (adding) return
     setAdding(true)
     try {
-      await addToCart(product.id, quantity)
+      await addItem(product.id, quantity)
       setAdded(true)
       setTimeout(() => setAdded(false), 2500)
     } finally {

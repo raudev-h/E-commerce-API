@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { getProducts } from '../api/products'
 import { getCategories } from '../api/categories'
-import { addToCart } from '../api/cart'
 import { useAuth } from '../context/AuthContext'
+import { useCart } from '../context/CartContext'
 
 function useDebounce(value, delay) {
   const [debounced, setDebounced] = useState(value)
@@ -182,6 +182,7 @@ function EmptyState({ hasFilters, onClear }) {
 
 export default function Products() {
   const { user } = useAuth()
+  const { addItem } = useCart()
   const navigate = useNavigate()
 
   const [products, setProducts] = useState([])
@@ -217,7 +218,7 @@ export default function Products() {
       navigate('/login')
       return
     }
-    await addToCart(productId, 1)
+    await addItem(productId, 1)
     setToast('Added to cart')
     setTimeout(() => setToast(null), 2500)
   }
