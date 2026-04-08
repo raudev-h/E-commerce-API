@@ -1,8 +1,12 @@
 from sqlalchemy import ForeignKey, Integer, CheckConstraint, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from core.database import Base
 from uuid import UUID, uuid4
 from datetime import datetime
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .product import Product
 
 
 class CartItem(Base):
@@ -24,3 +28,5 @@ class CartItem(Base):
     quantity:Mapped[int] = mapped_column(Integer)
 
     updated_at:Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now())
+
+    product: Mapped["Product"] = relationship("Product", lazy="noload")
