@@ -11,7 +11,7 @@ from uuid import UUID
 router = APIRouter(prefix="/user", tags=["/user"])
 
 
-@router.get("/", response_model=list[UserResponse])
+@router.get("", response_model=list[UserResponse])
 async def get_users(current_admin: Annotated[User, Depends(security.get_current_admin)],db: AsyncSession = Depends(get_db)):
         return await user_service.get_all_users(db)
 
@@ -21,7 +21,7 @@ async def get_user(current_admin: Annotated[User, Depends(security.get_current_a
     return await user_service.get_user_by_id(db, id)
 
 
-@router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def create_user(data: UserCreate, db: AsyncSession = Depends(get_db)):
     return await user_service.create_user(db, data)
 

@@ -11,7 +11,7 @@ from typing import Annotated
 
 router = APIRouter(prefix="/order", tags=["orders"])
 
-@router.get("/", response_model=list[OrderResponse])
+@router.get("", response_model=list[OrderResponse])
 async def get_orders(current_user:Annotated[User, Depends(security.get_current_user)], db:AsyncSession = Depends(get_db)):
     return await order_service.get_orders(current_user.id, db)
 
@@ -21,7 +21,7 @@ async def get_order(id:UUID, current_user:Annotated[User, Depends(security.get_c
     return await order_service.get_order(id,current_user.id,db)
 
 
-@router.post("/", response_model=OrderResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=OrderResponse, status_code=status.HTTP_201_CREATED)
 async def create_order(current_user: Annotated[User, Depends(security.get_current_user)], db:AsyncSession = Depends(get_db)):
     return await order_service.create_order(current_user.id,db)
 

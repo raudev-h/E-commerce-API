@@ -11,7 +11,7 @@ from uuid import UUID
 router = APIRouter(prefix="/cart", tags=["cart"])
 
 
-@router.get("/", response_model=CartResponse)
+@router.get("", response_model=CartResponse)
 async def get_cart(
     current_user: Annotated[User, Depends(security.get_current_user)],
     db: AsyncSession = Depends(get_db),
@@ -47,7 +47,7 @@ async def delete_item(
     return await cart_item_service.delete_item(current_user.id, item_id, db)
 
 
-@router.delete("/", response_model=CartResponse)
+@router.delete("", response_model=CartResponse)
 async def clear_cart(
     current_user: Annotated[User, Depends(security.get_current_user)],
     db: AsyncSession = Depends(get_db),

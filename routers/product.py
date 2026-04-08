@@ -11,7 +11,7 @@ from uuid import UUID
 router = APIRouter(prefix="/product", tags=["products"])
 
 
-@router.get("/", response_model=list[ProductResponse])
+@router.get("", response_model=list[ProductResponse])
 async def get_products(
     category_id: UUID | None = None,
     search: str | None = None,
@@ -27,7 +27,7 @@ async def get_product(id: UUID, db: AsyncSession = Depends(get_db)):
     return await product_service.get_product_by_id(id, db)
 
 
-@router.post("/", response_model=ProductResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=ProductResponse, status_code=status.HTTP_201_CREATED)
 async def create_product(data: ProductCreate,current_admin: Annotated[User, Depends(security.get_current_admin)], db: AsyncSession = Depends(get_db)):
     return await product_service.create_product(db, data)
 
