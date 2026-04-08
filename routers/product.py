@@ -14,11 +14,12 @@ router = APIRouter(prefix="/product", tags=["products"])
 @router.get("/", response_model=list[ProductResponse])
 async def get_products(
     category_id: UUID | None = None,
+    search: str | None = None,
     skip: int = 0,
     limit: int = 10,
     db: AsyncSession = Depends(get_db),
 ):
-    return await product_service.get_all_products(db, category_id, skip, limit)
+    return await product_service.get_all_products(db, category_id, search, skip, limit)
 
 
 @router.get("/{id}", response_model=ProductResponse)

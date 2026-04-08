@@ -6,11 +6,20 @@ from schemas import ProductCreate, ProductUpdate
 from uuid import UUID
 
 
-async def get_all_products(db: AsyncSession, category_id:UUID | None = None, skip:int = 0, limit:int = 10) -> list[Product]:
+async def get_all_products(
+    db: AsyncSession,
+    category_id: UUID | None = None,
+    search: str | None = None,
+    skip: int = 0,
+    limit: int = 10,
+) -> list[Product]:
+    query = select(Product).where(Product.is_active == True)
     if category_id:
-        result = await db.execute(select(Product).where(Product.category_id == category_id))
-        return list(result.scalars().all())[skip:skip + limit]
-    result = await db.execute(select(Product))
+        query = query.where(Product.category_id == category_id)
+    if search:
+        query = query.where(Product.name.ilike(f"%{search}%"))
+    query = query.offset(skip).limit(limit)
+    result = await db.execute(query)
     return list(result.scalars().all())
 
 
