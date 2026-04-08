@@ -5,7 +5,7 @@ from routers import user, category, product, cart_item, order, auth
 from core import NotFoundException, BadRequestException, ConflictException
 from core.config import settings
 
-app = FastAPI()
+app = FastAPI(redirect_slashes=False)
 
 app.add_middleware(
     CORSMiddleware,
