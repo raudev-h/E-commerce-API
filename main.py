@@ -1,9 +1,19 @@
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from routers import user, category, product, cart_item, order, auth
 from core import NotFoundException, BadRequestException, ConflictException
+from core.config import settings
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.exception_handler(NotFoundException)
 async def not_found_exception_handler(request, exc):
