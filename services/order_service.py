@@ -1,4 +1,5 @@
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 from models import Order, OrderItem, Cart, CartItem, User, Product
 from models.order import Status
@@ -12,11 +13,13 @@ async def get_orders(user_id:UUID, db:AsyncSession):
     if not user.scalar_one_or_none():
         raise NotFoundException("user not found")
     
-    orders = await db.execute(select(Order).where(Order.user_id == user_id))
+    orders = await db.execute(
+        select(Order)
+        .where(Order.user_id == user_id)
+        .options(selectinload(Order.items).selectinload(OrderItem.product))
+    )
 
-    orders = orders.scalars().all()
-
-    return list(orders)
+    return list(orders.scalars().all())
 
 async def get_order(order_id:UUID, user_id:UUID, db:AsyncSession):
     user = await db.execute(select(User).where(User.id == user_id))
@@ -24,7 +27,11 @@ async def get_order(order_id:UUID, user_id:UUID, db:AsyncSession):
     if not user.scalar_one_or_none():
         raise NotFoundException("user not found")
     
-    order = await db.execute(select(Order).where(Order.id == order_id, Order.user_id == user_id))
+    order = await db.execute(
+        select(Order)
+        .where(Order.id == order_id, Order.user_id == user_id)
+        .options(selectinload(Order.items).selectinload(OrderItem.product))
+    )
 
     order = order.scalar_one_or_none()
 
@@ -78,9 +85,8 @@ async def create_order(user_id:UUID, db:AsyncSession) -> Order:
 
     order.total = total_price
     await db.flush()
-    await db.refresh(order)
 
-    return order
+    return await get_order(order.id, user_id, db)
 
 async def cancel_order(user_id:UUID ,order_id:UUID, db:AsyncSession):
     cancellable_statuses = [Status.PENDING, Status.CONFIRMED]
@@ -96,9 +102,8 @@ async def cancel_order(user_id:UUID ,order_id:UUID, db:AsyncSession):
     order.status = Status.CANCELLED
 
     await db.flush()
-    await db.refresh(order)
 
-    return order
+    return await get_order(order_id, user_id, db)
 
 async def _get_all_items(id:UUID, db:AsyncSession):
     cart = await db.execute(select(Cart).where(Cart.user_id == id))
