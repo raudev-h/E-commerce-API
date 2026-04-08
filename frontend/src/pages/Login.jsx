@@ -8,7 +8,7 @@ import Button from '../components/ui/Button'
 export default function Login() {
   const { login } = useAuth()
   const navigate = useNavigate()
-  const [username, setUsername] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -18,7 +18,7 @@ export default function Login() {
     setError(null)
     setLoading(true)
     try {
-      const data = await loginRequest(username, password)
+      const data = await loginRequest(email, password)
       login(data.access_token)
       navigate('/')
     } catch (err) {
@@ -37,12 +37,12 @@ export default function Login() {
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <Input
-            label="Username"
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
-            placeholder="your_username"
+            placeholder="you@example.com"
           />
           <Input
             label="Password"

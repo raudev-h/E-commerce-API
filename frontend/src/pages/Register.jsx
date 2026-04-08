@@ -6,7 +6,13 @@ import Button from '../components/ui/Button'
 
 export default function Register() {
   const navigate = useNavigate()
-  const [form, setForm] = useState({ username: '', email: '', password: '' })
+  const [form, setForm] = useState({
+    first_name: '',
+    last_name: '',
+    email: '',
+    password: '',
+    confirm_password: '',
+  })
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
 
@@ -36,15 +42,26 @@ export default function Register() {
         </h1>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <Input
-            label="Username"
-            type="text"
-            name="username"
-            value={form.username}
-            onChange={handleChange}
-            required
-            placeholder="your_username"
-          />
+          <div className="grid grid-cols-2 gap-3">
+            <Input
+              label="First name"
+              type="text"
+              name="first_name"
+              value={form.first_name}
+              onChange={handleChange}
+              required
+              placeholder="John"
+            />
+            <Input
+              label="Last name"
+              type="text"
+              name="last_name"
+              value={form.last_name}
+              onChange={handleChange}
+              required
+              placeholder="Doe"
+            />
+          </div>
           <Input
             label="Email"
             type="email"
@@ -59,6 +76,15 @@ export default function Register() {
             type="password"
             name="password"
             value={form.password}
+            onChange={handleChange}
+            required
+            placeholder="••••••••"
+          />
+          <Input
+            label="Confirm password"
+            type="password"
+            name="confirm_password"
+            value={form.confirm_password}
             onChange={handleChange}
             required
             placeholder="••••••••"
