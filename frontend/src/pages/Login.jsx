@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { login as loginRequest } from '../api/auth'
 import { useAuth } from '../context/AuthContext'
+import Input from '../components/ui/Input'
+import Button from '../components/ui/Button'
 
 export default function Login() {
   const { login } = useAuth()
@@ -34,41 +36,28 @@ export default function Login() {
         </h1>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm text-white/60">Username</label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              className="bg-surface border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-white/30 focus:outline-none focus:border-brand transition-colors"
-              placeholder="your_username"
-            />
-          </div>
+          <Input
+            label="Username"
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+            placeholder="your_username"
+          />
+          <Input
+            label="Password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            placeholder="••••••••"
+          />
 
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm text-white/60">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="bg-surface border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-white/30 focus:outline-none focus:border-brand transition-colors"
-              placeholder="••••••••"
-            />
-          </div>
+          {error && <p className="text-red-400 text-sm">{error}</p>}
 
-          {error && (
-            <p className="text-red-400 text-sm">{error}</p>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="mt-2 py-2.5 bg-brand text-base font-semibold rounded-lg hover:bg-brand/90 transition-colors disabled:opacity-50"
-          >
+          <Button type="submit" loading={loading} className="mt-2 py-2.5">
             {loading ? 'Signing in…' : 'Sign in'}
-          </button>
+          </Button>
         </form>
 
         <p className="text-center text-white/40 text-sm mt-6">

@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { register as registerRequest } from '../api/auth'
+import Input from '../components/ui/Input'
+import Button from '../components/ui/Button'
 
 export default function Register() {
   const navigate = useNavigate()
@@ -34,56 +36,39 @@ export default function Register() {
         </h1>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm text-white/60">Username</label>
-            <input
-              type="text"
-              name="username"
-              value={form.username}
-              onChange={handleChange}
-              required
-              className="bg-surface border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-white/30 focus:outline-none focus:border-brand transition-colors"
-              placeholder="your_username"
-            />
-          </div>
+          <Input
+            label="Username"
+            type="text"
+            name="username"
+            value={form.username}
+            onChange={handleChange}
+            required
+            placeholder="your_username"
+          />
+          <Input
+            label="Email"
+            type="email"
+            name="email"
+            value={form.email}
+            onChange={handleChange}
+            required
+            placeholder="you@example.com"
+          />
+          <Input
+            label="Password"
+            type="password"
+            name="password"
+            value={form.password}
+            onChange={handleChange}
+            required
+            placeholder="••••••••"
+          />
 
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm text-white/60">Email</label>
-            <input
-              type="email"
-              name="email"
-              value={form.email}
-              onChange={handleChange}
-              required
-              className="bg-surface border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-white/30 focus:outline-none focus:border-brand transition-colors"
-              placeholder="you@example.com"
-            />
-          </div>
+          {error && <p className="text-red-400 text-sm">{error}</p>}
 
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm text-white/60">Password</label>
-            <input
-              type="password"
-              name="password"
-              value={form.password}
-              onChange={handleChange}
-              required
-              className="bg-surface border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-white/30 focus:outline-none focus:border-brand transition-colors"
-              placeholder="••••••••"
-            />
-          </div>
-
-          {error && (
-            <p className="text-red-400 text-sm">{error}</p>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="mt-2 py-2.5 bg-brand text-base font-semibold rounded-lg hover:bg-brand/90 transition-colors disabled:opacity-50"
-          >
+          <Button type="submit" loading={loading} className="mt-2 py-2.5">
             {loading ? 'Creating account…' : 'Create account'}
-          </button>
+          </Button>
         </form>
 
         <p className="text-center text-white/40 text-sm mt-6">
