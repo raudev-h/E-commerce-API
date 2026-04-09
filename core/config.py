@@ -10,5 +10,8 @@ class Settings(BaseSettings):
     test_database_url:str | None = None
     db_schema: str = "ecommerce"
     cors_origins: list[str] = ["http://localhost:5173"]
+    cloudinary_cloud_name: str = ""
+    cloudinary_api_key: str = ""
+    cloudinary_api_secret: str = ""
 
 settings = Settings() # type: ignore

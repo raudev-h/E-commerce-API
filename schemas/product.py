@@ -10,6 +10,7 @@ class ProductCreate(BaseModel):
     price:float = Field(gt=0)
     stock:int = Field(ge=0)
     category_id:UUID
+    image_url:str | None = None
 
 class ProductUpdate(BaseModel):
     name:Annotated[str | None, Field(min_length=3)] = None
@@ -17,6 +18,7 @@ class ProductUpdate(BaseModel):
     price:Annotated[float | None, Field(gt=0)] = None
     stock:Annotated[int | None, Field(ge=0)] = None
     category_id:UUID | None = None
+    image_url:str | None = None
 
 class ProductResponse(BaseModel):
     id:UUID
@@ -25,6 +27,7 @@ class ProductResponse(BaseModel):
     price:float
     stock:int
     category_id:UUID
+    image_url:str | None = None
     is_active:bool
     created_at:datetime
     updated_at:datetime

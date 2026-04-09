@@ -78,10 +78,10 @@ def run_migrations_online() -> None:
             target_metadata=target_metadata,
             include_schemas=True,
             version_table_schema="ecommerce",
-    )
+        )
 
-    with context.begin_transaction():
-        context.run_migrations()
+        with context.begin_transaction():
+            context.run_migrations()
 
 
 if context.is_offline_mode():

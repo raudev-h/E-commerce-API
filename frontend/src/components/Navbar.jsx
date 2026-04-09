@@ -46,6 +46,14 @@ export default function Navbar() {
               </span>
             )}
           </Link>
+          {user?.role === 'admin' && (
+            <Link
+              to="/admin"
+              className="text-sm text-brand/80 hover:text-brand transition-colors font-medium"
+            >
+              Admin
+            </Link>
+          )}
         </div>
 
         <div className="flex items-center gap-4">
