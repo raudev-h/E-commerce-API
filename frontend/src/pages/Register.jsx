@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { register as registerRequest } from '../api/auth'
+import { register as registerRequest, login as loginRequest } from '../api/auth'
+import { useAuth } from '../context/AuthContext'
 import Input from '../components/ui/Input'
 import Button from '../components/ui/Button'
 
 export default function Register() {
   const navigate = useNavigate()
+  const { login } = useAuth()
   const [form, setForm] = useState({
     first_name: '',
     last_name: '',
@@ -26,7 +28,9 @@ export default function Register() {
     setLoading(true)
     try {
       await registerRequest(form)
-      navigate('/login')
+      const { access_token } = await loginRequest(form.email, form.password)
+      login(access_token)
+      navigate('/')
     } catch (err) {
       setError(err.response?.data?.detail || 'Registration failed')
     } finally {
