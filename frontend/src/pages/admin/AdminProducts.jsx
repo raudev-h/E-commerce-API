@@ -266,7 +266,7 @@ export default function AdminProducts() {
                   label="Price"
                   name="price"
                   type="number"
-                  min="0.01"
+                  min="0"
                   step="0.01"
                   value={form.price}
                   onChange={handleChange}
