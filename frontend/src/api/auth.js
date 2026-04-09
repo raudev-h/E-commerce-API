@@ -11,7 +11,7 @@ export async function login(email, password) {
 }
 
 export async function register(userData) {
-  const response = await client.post('/user', userData)
+  const response = await client.post('/auth/register', userData)
   return response.data
 }
 
