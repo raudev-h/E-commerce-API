@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const client = axios.create({
-  baseURL: 'https://api.raudev-h.pro',
+  baseURL: import.meta.env.VITE_API_URL || 'https://api.raudev-h.pro',
 })
 
 client.interceptors.request.use((config) => {
