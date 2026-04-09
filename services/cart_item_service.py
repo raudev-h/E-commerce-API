@@ -81,6 +81,8 @@ async def update_item_quantity(user_id: UUID, item_id: UUID, quantity: int, db: 
 
     product = await db.execute(select(Product).where(Product.id == item.product_id))
     product = product.scalar_one_or_none()
+    if not product:
+        raise NotFoundException("product not found")
     _unavailable_stock(product.stock, quantity, f"not enough stock for {product.name}")
 
     item.quantity = quantity
