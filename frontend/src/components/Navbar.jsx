@@ -11,6 +11,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false)
 
   function handleLogout() {
+    if (!window.confirm('Are you sure you want to log out?')) return
     logout()
     setOpen(false)
     navigate('/login')
@@ -56,7 +57,7 @@ export default function Navbar() {
               <span className="text-sm text-white/50">{user.first_name}</span>
               <button
                 onClick={handleLogout}
-                className="text-sm px-4 py-1.5 rounded-md border border-white/20 text-white/70 hover:text-white hover:border-white/40 transition-colors"
+                className="text-sm px-4 py-1.5 rounded-md border border-red-500/30 text-red-400/80 hover:text-red-400 hover:border-red-500/60 transition-colors"
               >
                 Logout
               </button>
@@ -119,7 +120,7 @@ export default function Navbar() {
                 <span className="text-sm text-white/40">{user.first_name}</span>
                 <button
                   onClick={handleLogout}
-                  className="text-sm text-left text-white/70 hover:text-white transition-colors"
+                  className="text-sm text-left text-red-400/70 hover:text-red-400 transition-colors"
                 >
                   Logout
                 </button>
