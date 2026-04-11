@@ -131,7 +131,7 @@ function CartItem({ item, onUpdateQty, onRemove }) {
 
 export default function Cart() {
   const navigate = useNavigate()
-  const { cart, loading, updateItem, removeItem, emptyCart } = useCart()
+  const { cart, loading, updateItem, removeItem, emptyCart, refreshCart } = useCart()
 
   const [placingOrder, setPlacingOrder] = useState(false)
   const [orderError, setOrderError] = useState(null)
@@ -155,6 +155,7 @@ export default function Cart() {
     setOrderError(null)
     try {
       await createOrder({})
+      await refreshCart()
       navigate('/orders')
     } catch (err) {
       setOrderError(err.response?.data?.detail || 'Could not place the order. Please try again.')

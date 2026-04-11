@@ -53,8 +53,17 @@ export function CartProvider({ children }) {
     return updated
   }
 
+  async function refreshCart() {
+    try {
+      const updated = await getCart()
+      setCart(updated)
+    } catch {
+      setCart(null)
+    }
+  }
+
   return (
-    <CartContext.Provider value={{ cart, loading, itemCount, addItem, updateItem, removeItem, emptyCart }}>
+    <CartContext.Provider value={{ cart, loading, itemCount, addItem, updateItem, removeItem, emptyCart, refreshCart }}>
       {children}
     </CartContext.Provider>
   )
