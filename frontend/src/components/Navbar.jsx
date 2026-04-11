@@ -35,6 +35,9 @@ export default function Navbar() {
           <Link to="/" className="text-sm text-white/70 hover:text-white transition-colors">Home</Link>
           <Link to="/products" className="text-sm text-white/70 hover:text-white transition-colors">Products</Link>
           {user && (
+            <Link to="/orders" className="text-sm text-white/70 hover:text-white transition-colors">Orders</Link>
+          )}
+          {user && (
             <Link to="/cart" className="relative text-white/70 hover:text-white transition-colors">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8}
