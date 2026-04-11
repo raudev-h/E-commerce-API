@@ -33,6 +33,12 @@ class UserUpdateProfile(BaseModel):
     first_name:Annotated[str | None, Field(min_length=2)] = None
     last_name:Annotated[str | None, Field(min_length=2)] = None
 
+class UserAdminUpdate(BaseModel):
+    first_name:Annotated[str | None, Field(min_length=2)] = None
+    last_name:Annotated[str | None, Field(min_length=2)] = None
+    role: UserRole | None = None
+    is_active: bool | None = None
+
 class UserResponse(BaseModel):
     id:UUID
     first_name:str

@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core.database import get_db
 from core import security
 from models import User
-from schemas import UserCreate, UserUpdateProfile, UserResponse
+from schemas import UserCreate, UserUpdateProfile, UserAdminUpdate, UserResponse
 from services import user_service
 from typing import Annotated
 from uuid import UUID
@@ -27,6 +27,8 @@ async def create_user(data: UserCreate, db: AsyncSession = Depends(get_db)):
 
 
 @router.patch("/{id}", response_model=UserResponse)
-async def update_user_profile(
-    id: UUID, data: UserUpdateProfile, db: AsyncSession = Depends(get_db)):
-    return await user_service.update_user_profle(db, id, data)
+async def update_user(
+    id: UUID, data: UserAdminUpdate,
+    current_admin: Annotated[User, Depends(security.get_current_admin)],
+    db: AsyncSession = Depends(get_db)):
+    return await user_service.admin_update_user(db, id, data)

@@ -10,6 +10,7 @@ import Orders from './pages/Orders'
 import AdminLayout from './pages/admin/AdminLayout'
 import AdminProducts from './pages/admin/AdminProducts'
 import AdminCategories from './pages/admin/AdminCategories'
+import AdminUsers from './pages/admin/AdminUsers'
 
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem('token')
@@ -50,6 +51,7 @@ export default function App() {
             <Route index element={<Navigate to="/admin/products" replace />} />
             <Route path="products" element={<AdminProducts />} />
             <Route path="categories" element={<AdminCategories />} />
+            <Route path="users" element={<AdminUsers />} />
           </Route>
         </Routes>
       </main>

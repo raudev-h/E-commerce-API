@@ -3,7 +3,7 @@ from sqlalchemy import select
 from core import security
 from core import NotFoundException, ConflictException
 from models import User, Cart
-from schemas import UserCreate, UserUpdateProfile
+from schemas import UserCreate, UserUpdateProfile, UserAdminUpdate
 from uuid import UUID
 
 async def get_all_users(db:AsyncSession) -> list[User]:
@@ -48,6 +48,15 @@ async def update_user_profle(db:AsyncSession, id:UUID, data:UserUpdateProfile) -
     for field, value in updated_data.items():
         setattr(user, field, value)
 
+    await db.flush()
+    await db.refresh(user)
+    return user
+
+async def admin_update_user(db: AsyncSession, id: UUID, data: UserAdminUpdate) -> User:
+    user = await get_user_by_id(db, id)
+    updated_data = data.model_dump(exclude_unset=True)
+    for field, value in updated_data.items():
+        setattr(user, field, value)
     await db.flush()
     await db.refresh(user)
     return user
