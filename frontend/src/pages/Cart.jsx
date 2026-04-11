@@ -158,7 +158,8 @@ export default function Cart() {
       await refreshCart()
       navigate('/orders')
     } catch (err) {
-      setOrderError(err.response?.data?.detail || 'Could not place the order. Please try again.')
+      const detail = err.response?.data?.detail
+      setOrderError(Array.isArray(detail) ? detail.map((e) => e.msg).join(', ') : detail || 'Could not place the order. Please try again.')
     } finally {
       setPlacingOrder(false)
     }
