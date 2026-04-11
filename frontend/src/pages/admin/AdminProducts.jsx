@@ -105,7 +105,8 @@ export default function AdminProducts() {
       setModal(null)
       await load()
     } catch (err) {
-      setError(err.response?.data?.detail || 'Something went wrong')
+      const detail = err.response?.data?.detail
+      setError(Array.isArray(detail) ? detail.map((e) => e.msg).join(', ') : detail || 'Something went wrong')
     } finally {
       setSaving(false)
     }
