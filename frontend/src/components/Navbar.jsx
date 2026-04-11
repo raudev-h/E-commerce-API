@@ -50,7 +50,7 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-4">
           {user ? (
             <>
-              <span className="text-sm text-white/50">{user.sub || user.email}</span>
+              <span className="text-sm text-white/50">{user.first_name}</span>
               <button
                 onClick={handleLogout}
                 className="text-sm px-4 py-1.5 rounded-md border border-white/20 text-white/70 hover:text-white hover:border-white/40 transition-colors"
@@ -110,7 +110,7 @@ export default function Navbar() {
           <div className="border-t border-white/10 pt-4">
             {user ? (
               <div className="flex flex-col gap-3">
-                <span className="text-sm text-white/40">{user.sub || user.email}</span>
+                <span className="text-sm text-white/40">{user.first_name}</span>
                 <button
                   onClick={handleLogout}
                   className="text-sm text-left text-white/70 hover:text-white transition-colors"

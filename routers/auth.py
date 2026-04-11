@@ -23,7 +23,7 @@ async def login(form_data:Annotated[OAuth2PasswordRequestForm, Depends()], db:As
             headers={"WWW-Authenticate": "Bearer"}
         )
     access_token_expires = timedelta(minutes=security.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = security.create_access_token(data={"sub":str(user.id), "role": user.role.value}, expires_delta=access_token_expires)
+    access_token = security.create_access_token(data={"sub":str(user.id), "role": user.role.value, "first_name": user.first_name}, expires_delta=access_token_expires)
 
     return Token(access_token=access_token)
 
