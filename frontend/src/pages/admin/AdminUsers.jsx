@@ -63,11 +63,11 @@ export default function AdminUsers() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-white/10 text-white/40 text-left">
+                <th className="px-4 py-3 font-medium">Status</th>
                 <th className="px-4 py-3 font-medium">Name</th>
                 <th className="px-4 py-3 font-medium">Email</th>
-                <th className="px-4 py-3 font-medium">Role</th>
-                <th className="px-4 py-3 font-medium">Status</th>
-                <th className="px-4 py-3 font-medium">Joined</th>
+                <th className="px-4 py-3 font-medium">Created</th>
+                <th className="px-4 py-3 font-medium">Updated</th>
                 <th className="px-4 py-3 font-medium w-32"></th>
               </tr>
             </thead>
@@ -77,19 +77,6 @@ export default function AdminUsers() {
                 const busy = updating === u.id
                 return (
                   <tr key={u.id} className="border-b border-white/5 hover:bg-white/[0.02]">
-                    <td className="px-4 py-3 text-white font-medium">
-                      {u.first_name} {u.last_name}
-                    </td>
-                    <td className="px-4 py-3 text-white/50">{u.email}</td>
-                    <td className="px-4 py-3">
-                      <span className={`text-xs px-2 py-0.5 rounded-full border ${
-                        u.role === 'admin'
-                          ? 'bg-brand/10 text-brand border-brand/20'
-                          : 'bg-white/5 text-white/40 border-white/10'
-                      }`}>
-                        {u.role}
-                      </span>
-                    </td>
                     <td className="px-4 py-3">
                       <span className={`text-xs px-2 py-0.5 rounded-full ${
                         u.is_active
@@ -99,7 +86,12 @@ export default function AdminUsers() {
                         {u.is_active ? 'Active' : 'Inactive'}
                       </span>
                     </td>
+                    <td className="px-4 py-3 text-white font-medium">
+                      {u.first_name} {u.last_name}
+                    </td>
+                    <td className="px-4 py-3 text-white/50">{u.email}</td>
                     <td className="px-4 py-3 text-white/30 text-xs">{formatDate(u.created_at)}</td>
+                    <td className="px-4 py-3 text-white/30 text-xs">{formatDate(u.updated_at)}</td>
                     <td className="px-4 py-3">
                       {!isCurrentUser && (
                         <div className="flex gap-3 justify-end">
