@@ -7,7 +7,7 @@ const STATUS_CONFIG = {
   confirmed:  { label: 'Confirmed',  color: 'text-blue-400',   bg: 'bg-blue-400/10',   border: 'border-blue-400/20' },
   shipped:    { label: 'Shipped',    color: 'text-purple-400', bg: 'bg-purple-400/10', border: 'border-purple-400/20' },
   delivered:  { label: 'Delivered',  color: 'text-brand',      bg: 'bg-brand/10',      border: 'border-brand/20' },
-  cancelled:  { label: 'Cancelled',  color: 'text-white/30',   bg: 'bg-white/5',       border: 'border-white/10' },
+  canceled:   { label: 'Cancelled',  color: 'text-white/30',   bg: 'bg-white/5',       border: 'border-white/10' },
 }
 
 function StatusBadge({ status }) {
