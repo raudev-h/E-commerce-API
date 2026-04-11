@@ -74,7 +74,7 @@ function OrderCard({ order, onCancel }) {
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center gap-3">
             <span className="font-display font-semibold text-white text-sm">
-              Order #{order.id}
+              Order #{order.id.slice(0, 8).toUpperCase()}
             </span>
             <StatusBadge status={order.status} />
           </div>
