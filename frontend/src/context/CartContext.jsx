@@ -36,19 +36,22 @@ export function CartProvider({ children }) {
   }
 
   async function updateItem(itemId, quantity) {
-    const updated = await updateCartItem(itemId, quantity)
+    await updateCartItem(itemId, quantity)
+    const updated = await getCart()
     setCart(updated)
     return updated
   }
 
   async function removeItem(itemId) {
-    const updated = await removeCartItem(itemId)
+    await removeCartItem(itemId)
+    const updated = await getCart()
     setCart(updated)
     return updated
   }
 
   async function emptyCart() {
-    const updated = await clearCartApi()
+    await clearCartApi()
+    const updated = await getCart()
     setCart(updated)
     return updated
   }
