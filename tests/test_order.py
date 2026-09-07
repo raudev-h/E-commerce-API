@@ -8,7 +8,7 @@ async def test_get_orders_returns_list(auth_user_client: AsyncClient, created_or
     # Arrange - orden ya existe en DB para el usuario autenticado
 
     # Act
-    response = await auth_user_client.get("/order/")
+    response = await auth_user_client.get("/order")
 
     # Assert
     assert response.status_code == 200
@@ -58,7 +58,7 @@ async def test_create_order(auth_user_client: AsyncClient, created_cart_item):
     expected_total = created_cart_item["quantity"] * created_cart_item["price"]
 
     # Act
-    response = await auth_user_client.post("/order/")
+    response = await auth_user_client.post("/order")
 
     # Assert
     assert response.status_code == 201
@@ -71,13 +71,13 @@ async def test_create_order_without_auth(client: AsyncClient):
     # Arrange - sin token
 
     # Act
-    response = await client.post("/order/")
+    response = await client.post("/order")
 
     # Assert
     assert response.status_code == 401
 
 async def test_create_order_with_empty_cart(auth_user_client:AsyncClient):
-    response = await auth_user_client.post("/order/")
+    response = await auth_user_client.post("/order")
     assert response.status_code == 409
 
 async def test_cancel_order(auth_user_client:AsyncClient, created_order):
@@ -117,7 +117,7 @@ async def test_verify_empty_cart_after_order_and_stock_deduct_correctly(auth_use
     product = product.scalar_one_or_none()
     expected_stock = product.stock - created_cart_item["quantity"]
 
-    response = await auth_user_client.post("/order/")
+    response = await auth_user_client.post("/order")
 
     product = await db_session.execute(select(Product).where(Product.id == created_cart_item["product_id"]))
     product = product.scalar_one_or_none()

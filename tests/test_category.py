@@ -5,7 +5,7 @@ from models import Category
 
 
 async def test_get_all_categories(client:AsyncClient):
-    response = await client.get("/category/")
+    response = await client.get("/category")
     assert response.status_code == 200
     assert isinstance(response.json(),list)
 
@@ -21,7 +21,7 @@ async def test_get_category_with_wrong_id(client:AsyncClient):
 
 async def test_create_category(auth_admin_client:AsyncClient):
     new_category = {"name":"Deporte","description": "sport articles"}
-    response = await auth_admin_client.post("/category/", json=new_category)
+    response = await auth_admin_client.post("/category", json=new_category)
     assert response.status_code == 201
     data = response.json()
     assert data["name"] == new_category["name"]
@@ -30,11 +30,11 @@ async def test_create_category(auth_admin_client:AsyncClient):
     assert "id" in data
 
 async def  test_create_duplicate_category(auth_admin_client:AsyncClient, created_category):
-    response = await auth_admin_client.post("/category/", json=CATEGORY_DATA)
+    response = await auth_admin_client.post("/category", json=CATEGORY_DATA)
     assert response.status_code == 409
 
 async def test_create_category_without_been_admin(auth_client:AsyncClient):
-    response = await auth_client.post("/category/", json=CATEGORY_DATA)
+    response = await auth_client.post("/category", json=CATEGORY_DATA)
     assert response.status_code == 403
 
 async def test_update_category(auth_admin_client:AsyncClient, created_category):

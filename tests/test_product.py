@@ -4,7 +4,7 @@ from uuid import uuid4
 
 
 async def test_get_all_products(client: AsyncClient):
-    response = await client.get("/product/")
+    response = await client.get("/product")
     assert response.status_code == 200
     assert isinstance(response.json(), list)
 
@@ -29,7 +29,7 @@ async def test_create_product(auth_admin_client: AsyncClient, created_category):
         "stock": 10,
         "category_id": created_category["id"],
     }
-    response = await auth_admin_client.post("/product/", json=product_data)
+    response = await auth_admin_client.post("/product", json=product_data)
     assert response.status_code == 201
     data = response.json()
     assert data["name"] == product_data["name"]
@@ -48,7 +48,7 @@ async def test_create_duplicate_product(
         "stock": 10,
         "category_id": created_product["category_id"],
     }
-    response = await auth_admin_client.post("/product/", json=product_data)
+    response = await auth_admin_client.post("/product", json=product_data)
     assert response.status_code == 409
 
 
@@ -62,7 +62,7 @@ async def test_create_product_without_been_admin(
         "stock": 10,
         "category_id": created_category["id"],
     }
-    response = await auth_client.post("/product/", json=product_data)
+    response = await auth_client.post("/product", json=product_data)
     assert response.status_code == 403
 
 
@@ -74,10 +74,10 @@ async def test_create_product_with_wrong_category_id(auth_admin_client: AsyncCli
         "stock": 10,
         "category_id": str(uuid4()),
     }
-    response = await auth_admin_client.post("/product/", json=product_data)
+    response = await auth_admin_client.post("/product", json=product_data)
     assert response.status_code == 404
 
-    response = await auth_admin_client.get("/product/")
+    response = await auth_admin_client.get("/product")
     products = response.json()
     assert not any(p["name"] == product_data["name"] for p in products)
 

@@ -71,7 +71,7 @@ async def client(db_session):
 
 @pytest_asyncio.fixture
 async def auth_client(client: AsyncClient):
-    await client.post("/user/", json=USER_DATA)
+    await client.post("/user", json=USER_DATA)
     response = await client.post(
         "/auth/login",
         data={"username": USER_DATA["email"], "password": USER_DATA["password"]},
@@ -83,7 +83,7 @@ async def auth_client(client: AsyncClient):
 
 @pytest_asyncio.fixture
 async def auth_admin_client(client: AsyncClient, db_session):
-    await client.post("/user/", json=ADMIN_DATA)
+    await client.post("/user", json=ADMIN_DATA)
     result = await db_session.execute(
         select(User).where(User.email == ADMIN_DATA["email"])
     )
