@@ -22,6 +22,6 @@ async def test_login_with_inactive_user(db_session, created_user, client:AsyncCl
 
     await db_session.flush()
 
-    response = await client.post("/auth/login", data={"username":created_user["email"], "password":created_user["password"]})
+    response = await client.post("/auth/login", data={"username":created_user["email"], "password":"password123"})
 
     assert response.status_code == 401
