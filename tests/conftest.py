@@ -30,6 +30,9 @@ CATEGORY_DATA = {"name": "Tech", "description": "tech articles"}
 
 @pytest_asyncio.fixture(scope="function", autouse=True)
 async def setup_database():
+    if not settings.test_database_url:
+        raise RuntimeError("TEST_DATABASE_URL no está configurada en el .env")
+
     test_engine = create_async_engine(settings.test_database_url, echo=False)
 
     async with test_engine.begin() as conn:
@@ -39,6 +42,7 @@ async def setup_database():
     async with test_engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.execute(text(f"DROP SCHEMA IF EXISTS {settings.db_schema}"))
+    await test_engine.dispose()
 
 
 @pytest_asyncio.fixture
