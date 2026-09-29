@@ -202,7 +202,7 @@ export default function Products() {
 
   useEffect(() => {
     getCategories()
-      .then(setCategories)
+      .then((data) => setCategories(Array.isArray(data) ? data : []))
       .catch(() => {})
   }, [])
 
@@ -225,6 +225,7 @@ export default function Products() {
 
     getProducts(params)
       .then((data) => {
+        if (!Array.isArray(data)) throw new Error('Unexpected response')
         setProducts((prev) => isLoadMore ? [...prev, ...data] : data)
         setHasMore(data.length === LIMIT)
       })
