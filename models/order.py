@@ -36,6 +36,6 @@ class Order(Base):
 
     updated_at:Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now())
 
-    status:Mapped[Status] = mapped_column(Enum(Status))
+    status:Mapped[Status] = mapped_column(Enum(Status, schema="ecommerce"))
 
     items: Mapped[list["OrderItem"]] = relationship("OrderItem", lazy="noload")
