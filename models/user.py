@@ -20,7 +20,7 @@ class User(Base):
 
     password:Mapped[str] = mapped_column(String(225))
 
-    role: Mapped[UserRole] = mapped_column(Enum(UserRole), default=UserRole.user)
+    role: Mapped[UserRole] = mapped_column(Enum(UserRole, schema="ecommerce"), default=UserRole.user)
 
     first_name:Mapped[str] = mapped_column(String(225))
 

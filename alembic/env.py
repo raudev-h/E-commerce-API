@@ -34,7 +34,9 @@ target_metadata = Base.metadata
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
-config.set_main_option("sqlalchemy.url", settings.database_url.replace("+asyncpg", "").replace("%", "%%"))
+# Tests pass their own database through config.attributes; the app uses settings.database_url
+database_url: str = config.attributes.get("database_url", settings.database_url)
+config.set_main_option("sqlalchemy.url", database_url.replace("+asyncpg", "").replace("%", "%%"))
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
 
