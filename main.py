@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from routers import user, category, product, cart_item, order, auth, upload
+from routers import user, category, product, cart_item, order, auth, upload, report
 from core import NotFoundException, BadRequestException, ConflictException
 from core.config import settings
 
@@ -43,3 +43,4 @@ app.include_router(cart_item.router)
 app.include_router(order.router)
 app.include_router(auth.router)
 app.include_router(upload.router)
+app.include_router(report.router)
