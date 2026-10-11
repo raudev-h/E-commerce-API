@@ -51,6 +51,18 @@ export default function AdminLayout() {
           >
             Categories
           </NavLink>
+          <NavLink
+            to="/admin/reports"
+            className={({ isActive }) =>
+              `px-3 py-2 rounded-md text-sm transition-colors ${
+                isActive
+                  ? 'bg-brand/10 text-brand font-medium'
+                  : 'text-white/60 hover:text-white hover:bg-white/5'
+              }`
+            }
+          >
+            Reports
+          </NavLink>
         </nav>
       </aside>
 
